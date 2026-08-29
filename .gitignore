@@ -1,0 +1,20 @@
+# Django-specific files
+db.sqlite3
+db.sqlite3-journal
+*.log
+local_settings.py
+
+# Python-specific files
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.venv/
+.env
+
+# IDE and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
