@@ -1,0 +1,52 @@
+{% extends "bookmarks/layout.html" %} 
+
+{% block title %}
+    Login Page
+{% endblock %}
+
+{% block body %}
+
+    <div class="container d-flex align-items-center justify-content-center min-vh-100">
+        <div class="p-4 rounded card shadow" style="width: 100%; max-width: 480px;">
+            <h2 class="text-center fw-bold mb-2 mt-3">LinkStash</h2>
+            <p class="text-muted text-center mb-4">Login to your account</p>
+
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger py-2 text-center" role="alert" style="font-size: 0.9rem;">
+                    {{ form.non_field_errors.0 }}
+                </div>
+            {% endif %}
+
+            <form action="{% url 'login' %}" method="post">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username:</label>
+                    {{ form.username }}
+    
+                    {% if form.username.errors %}
+                        <div class="text-danger small mt-1">{{ form.username.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password:</label>
+                    {{ form.password }}
+    
+                    {% if form.password.errors %}
+                        <div class="text-danger small mt-1">{{ form.password.errors.0 }}</div>
+                    {% endif %}
+                </div>
+    
+
+              <button type="submit" class="btn btn-primary w-100 fw-semibold my-3">Log In</button>
+            </form>
+
+            <div class="text-center mt-2">
+                <span class="text-muted small">Dont have an account?</span>
+                <a href="{% url 'register' %}" class="text-decoration-none fw-semibold small">Sign Up</a>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

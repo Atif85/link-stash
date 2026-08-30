@@ -69,6 +69,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "link_stash.wsgi.application"
 
+LOGIN_URL = 'login'
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
