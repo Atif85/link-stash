@@ -103,8 +103,8 @@
             function onMouseMove(event) {
                 let newWidth = event.clientX;
                 
-                const minWidth = 250;
-                const maxWidth = 480;
+                const minWidth = 200;
+                const maxWidth = 550;
 
                 // Clamp width
                 newWidth = Math.min(Math.max(newWidth, minWidth), maxWidth);
@@ -112,7 +112,6 @@
                 // Set clamped width
                 sidebar.style.width = `${newWidth}px`;
             }
-
         });
     </script>
 {% endblock %}

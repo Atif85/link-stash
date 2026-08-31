@@ -6,9 +6,9 @@ body {
 }
 
 .sidebar {
+    min-width: 200px;
+    max-width: 550px;
     width: 320px;
-    min-width: 250px;
-    max-width: 480px;
     height: 100vh;
 }
 
