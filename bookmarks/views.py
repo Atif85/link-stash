@@ -1,15 +1,45 @@
 from django.shortcuts import redirect, render
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 
 from bookmarks.forms import LoginForm, RegisterForm
 
-from .models import User
+from .models import User, Folder, Bookmark
 
 
 @login_required
 def index(request):
     return render(request, "bookmarks/index.html")
+
+
+@login_required
+def get_stash_data(request):
+    # Get the folders and bookmarks
+    folders = Folder.objects.filter(user=request.user)
+    bookmarks = Bookmark.objects.filter(folder__in=folders)
+
+    # Serialize to lists
+    folders_list = []
+    for folder in folders:
+        folders_list.append(
+            {"id": folder.id, "name": folder.name, "parent_id": folder.parent_id}
+        )
+
+    bookmarks_list = []
+    for bookmark in bookmarks:
+        bookmarks_list.append(
+            {
+                "id": bookmark.id,
+                "title": bookmark.title,
+                "url": bookmark.url,
+                "folder_id": bookmark.folder_id,
+                "created_at": bookmark.created_at,
+                "favicon_url": bookmark.favicon_url,
+            }
+        )
+
+    return JsonResponse({"folders": folders_list, "bookmarks": bookmarks_list})
 
 
 def login_view(request):
