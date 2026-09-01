@@ -1,4 +1,5 @@
 {% extends "bookmarks/layout.html" %} 
+{% load static %}
 
 {% block title %}
     LinkStash
@@ -72,46 +73,8 @@
             
         </div>
     </div>
+{% endblock %}
 
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            // Get the resizer and sidebar elements
-            const sidebar = document.getElementById("sidebar");
-            const resizer = document.getElementById("sidebar-resizer");
-
-            resizer.addEventListener("mousedown", (event) => {
-                event.preventDefault();
-
-                // When dragging globaly set the cursor to col-resize and prevent selecting.
-                document.body.style.cursor = "col-resize";
-                document.body.style.userSelect = "none";
-
-                document.addEventListener("mouseup", onMouseUp);
-                document.addEventListener("mousemove", onMouseMove);
-            }); 
-
-            function onMouseUp() {
-                // Reset cursor and userselect
-                document.body.style.cursor = "";
-                document.body.style.userSelect = "";
-
-                // Remove event listeners
-                document.removeEventListener("mouseup", onMouseUp);
-                document.removeEventListener("mousemove", onMouseMove);
-            }
-
-            function onMouseMove(event) {
-                let newWidth = event.clientX;
-                
-                const minWidth = 200;
-                const maxWidth = 550;
-
-                // Clamp width
-                newWidth = Math.min(Math.max(newWidth, minWidth), maxWidth);
-
-                // Set clamped width
-                sidebar.style.width = `${newWidth}px`;
-            }
-        });
-    </script>
+{% block script %}
+    <script type="module" src="{% static 'bookmarks/js/main.js' %}"></script>
 {% endblock %}

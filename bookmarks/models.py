@@ -24,8 +24,6 @@ class Bookmark(models.Model):
 
     folder = models.ForeignKey(
         Folder,
-        null=True,
-        blank=True,
         on_delete=models.CASCADE,
         related_name="bookmarks",
     )

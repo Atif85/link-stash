@@ -20,7 +20,7 @@
             href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
         />
 
-        <link rel="stylesheet" href="{% static 'bookmarks/styles.css' %}" />
+        <link rel="stylesheet" href="{% static 'bookmarks/css/styles.css' %}" />
         <title>{% block title %}LinkStash{% endblock %}</title>
     </head>
     <body class="bg-body-tertiary">
@@ -32,5 +32,7 @@
             integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
             crossorigin="anonymous"
         ></script>
+
+        {% block script %} {% endblock %}
     </body>
 </html>
