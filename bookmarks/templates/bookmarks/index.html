@@ -19,8 +19,53 @@
 
             <!-- Sidebar Main Content -->
             <div id="sidebar-content" class="flex-grow-1 overflow-y-auto mb-3">
-                <p class="text-muted fw-semibold mb-2">My Stash</p>
-                <div class="text-muted small px-1">No folders added yet.</div>
+                <p class="text-muted fw-semibold mb-2 text-uppercase">My Stash</p>
+
+                <!-- Every tree-folder has a div tree-item as its name and a tree-list for its subitems -->
+                <!-- Every bookmark is a <a> tree-item and it can be in a tree-list -->
+                <ul class="tree-list">
+                    <li class="tree-folder folder-expanded folder-expandable">
+                        <div class="tree-item">
+                            <i class="bi bi-caret-right-fill tree-caret-icon"></i>
+                            <i class="bi bi-folder-fill tree-folder-icon"></i>
+                            <span> Folder Name </span>
+                        </div>
+
+                        <ul class="tree-list">  
+                            <li>
+                                <a class="tree-item active">
+                                    <i class="bi bi-link-45deg tree-bookmark-icon"></i>
+                                    <span>Bookmark1</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="tree-item">
+                                    <i class="bi bi-link-45deg tree-bookmark-icon"></i>
+                                    <span>Bookmark2</span>
+                                </a>
+                            </li>
+
+                            <li id="folder" class="tree-folder folder-collapsed folder-empty">
+                                <div class="tree-item">
+                                    <i class="bi bi-caret-right-fill tree-caret-icon"></i>
+                                    <i class="bi bi-folder-fill tree-folder-icon"></i>
+                                    <span> Folder Name 2</span>
+                                </div>
+        
+                                <ul class="tree-list">  
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li>
+                        <a class="tree-item">
+                            <i class="bi bi-link-45deg tree-bookmark-icon"></i>
+                            <span>Bookmark3</span>
+                        </a>
+                    </li>
+                    
+                </ul>
             </div>
 
             <!-- Sidebar Dropdown -->
