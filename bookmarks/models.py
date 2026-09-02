@@ -14,6 +14,8 @@ class Folder(models.Model):
         "self", null=True, blank=True, on_delete=models.CASCADE, related_name="children"
     )
 
+    children_order = models.JSONField(default=list, blank=True)
+
     def __str__(self):
         return self.name
 
