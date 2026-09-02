@@ -23,7 +23,12 @@ def get_stash_data(request):
     folders_list = []
     for folder in folders:
         folders_list.append(
-            {"id": folder.id, "name": folder.name, "parent_id": folder.parent_id}
+            {
+                "id": folder.id,
+                "name": folder.name,
+                "parent_id": folder.parent_id,
+                "children_order": folder.children_order,
+            }
         )
 
     bookmarks_list = []
@@ -80,6 +85,10 @@ def register_view(request):
             )
 
             user.save()
+
+            # Create the root folder for this user
+            root_folder = Folder(name="Root", user=user, parent=None)
+            root_folder.save()
 
             login(request, user)
             return redirect("index")
