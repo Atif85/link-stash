@@ -51,8 +51,6 @@ function renderFolder(folderID, foldersByID, bookmarksByID) {
         hasChildren,
     );
 
-    //console.log(`--- Rendering Folder: ${folder.name} ---`)
-
     renderFolderChildren(childOrder, folderList, foldersByID, bookmarksByID);
 
     return folderElement;
@@ -70,14 +68,27 @@ function renderFolderChildren(
 
         // Folder case
         if (type === "f") {
-            parentElement.append(renderFolder(id, foldersByID, bookmarksByID));
+            const folderElement = renderFolder(id, foldersByID, bookmarksByID);
+
+            // Set type and id in dataset
+            folderElement.dataset.id = id;
+            folderElement.dataset.type = "f";
+
+            parentElement.append(folderElement);
         }
         // Bookmark case
         else {
             const bookmark = bookmarksByID[id];
             if (!bookmark) continue;
 
-            parentElement.append(createTreeBookmark(bookmark.title));
+            const bookmarkElement = createTreeBookmark(bookmark.title);
+
+            // Set type and id in dataset
+            bookmarkElement.dataset.id = bookmark.id;
+            bookmarkElement.dataset.type = "b";
+            bookmarkElement.dataset.url
+
+            parentElement.append(bookmarkElement);
         }
     }
 }
@@ -86,10 +97,10 @@ function renderFolderChildren(
 function createTreeBookmark(title) {
     const listItem = document.createElement("li");
     listItem.innerHTML = `
-        <a class="tree-item">
+        <div class="tree-item">
             <i class="bi bi-link-45deg tree-bookmark-icon"></i>
             <span>${title}</span>
-        </a>
+        <div>
     `;
 
     return listItem;
@@ -97,9 +108,10 @@ function createTreeBookmark(title) {
 
 function createTreeFolder(name, expandable) {
     const listItem = document.createElement("li");
+
+    // Set the classes
     listItem.className =
-        "tree-folder folder-expanded" +
-        (expandable ? "" : " folder-empty");
+        "tree-folder folder-expanded" + (expandable ? "" : " folder-empty");
 
     listItem.innerHTML = `
         <div class="tree-item">

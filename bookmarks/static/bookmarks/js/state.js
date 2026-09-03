@@ -2,6 +2,7 @@
 const appState = {
     folders: [],
     bookmarks: [],
+    activeItem: null,
 };
 
 export function setStashState(folders, bookmarks) {
@@ -15,4 +16,12 @@ export function getFolders() {
 
 export function getBookmarks() {
     return appState.bookmarks;
+}
+
+export function setActiveItem(type, id) {
+    appState.activeItem = { type, id };
+}
+
+export function getActiveItem() {
+    return appState.activeItem;
 }

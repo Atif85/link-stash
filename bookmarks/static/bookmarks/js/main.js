@@ -1,6 +1,7 @@
 import { setStashState } from "./state.js";
 import { initSidebar } from "./sidebar.js";
 import { rebuildTree } from "./tree.js";
+import { initInteraction } from "./interaction.js";
 
 document.addEventListener("DOMContentLoaded", () => {
     initSidebar();
@@ -12,5 +13,6 @@ document.addEventListener("DOMContentLoaded", () => {
             // Set the intial state
             setStashState(data.folders, data.bookmarks);
             rebuildTree();
+            initInteraction();
         });
 });
