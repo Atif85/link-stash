@@ -43,12 +43,11 @@ function renderFolder(folderID, foldersByID, bookmarksByID) {
     if (!folder) return;
 
     const childOrder = folder.children_order;
-    const hasChildren = childOrder.length > 0;
 
     // Create the folder
     const [folderElement, folderList] = createTreeFolder(
         folder.name,
-        hasChildren,
+        childOrder.length,
     );
 
     renderFolderChildren(childOrder, folderList, foldersByID, bookmarksByID);
@@ -86,7 +85,6 @@ function renderFolderChildren(
             // Set type and id in dataset
             bookmarkElement.dataset.id = bookmark.id;
             bookmarkElement.dataset.type = "b";
-            bookmarkElement.dataset.url
 
             parentElement.append(bookmarkElement);
         }
@@ -106,18 +104,19 @@ function createTreeBookmark(title) {
     return listItem;
 }
 
-function createTreeFolder(name, expandable) {
+function createTreeFolder(name, childCount) {
     const listItem = document.createElement("li");
 
     // Set the classes
     listItem.className =
-        "tree-folder folder-expanded" + (expandable ? "" : " folder-empty");
+        "tree-folder folder-collapsed" + (childCount > 0 ? "" : " folder-empty");
 
     listItem.innerHTML = `
         <div class="tree-item">
             <i class="bi bi-caret-right-fill tree-caret-icon"></i>
             <i class="bi bi-folder-fill tree-folder-icon"></i>
-            <span> ${name} </span>
+            <span class="flex-grow-1"> ${name} </span>
+            <span class="small text-muted pe-1"> ${childCount} </span>
         </div>
     `;
 

@@ -66,10 +66,15 @@ body {
     
     cursor: pointer;
     user-select: none;
-    text-decoration: none;
+    touch-action: none;
     color: inherit;
     transition: background-color 0.15s ease, color 0.15s ease;
     gap: 6px;
+}
+
+#root-list li {
+    transition: transform 200ms ease;
+    will-change: transform;
 }
 
 .tree-item:hover {
@@ -104,4 +109,26 @@ body {
 /* Hide caret if folder is empty */
 .tree-folder.folder-empty .tree-caret-icon {
     display: none;
+}
+
+/* --- Dragging --- */
+.dragging {
+    cursor: grabbing;
+    position: fixed;
+    z-index: 100;
+    transition: none;
+    pointer-events: none;
+    margin: 0;
+    background-color: var(--bs-secondary-bg);
+    list-style: none;
+}
+
+.returning {
+    transition: transform 0.3s;
+}
+
+.drop-placeholder {
+    border: 2px dashed var(--bs-border-color);
+    color: inherit;
+    transition: height 150ms ease;
 }

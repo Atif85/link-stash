@@ -19,6 +19,10 @@ export function getBookmarks() {
 }
 
 export function setActiveItem(type, id) {
+    if (type === null || id === null) {
+        appState.activeItem = null;
+        return;
+    }
     appState.activeItem = { type, id };
 }
 
