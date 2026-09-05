@@ -1,3 +1,4 @@
+import { updateMainContent } from "./mainContent.js";
 import { setActiveItem } from "./state.js";
 
 export function initInteraction() {
@@ -138,7 +139,7 @@ export function initInteraction() {
         const targetTreeItem = targetli.querySelector(".tree-item");
 
         const targetType = targetli.dataset.type; // f/b
-        const targetID = targetli.dataset.id;
+        const targetID = parseInt(targetli.dataset.id, 10);
 
         let isSingleClick = true;
         // If timer is null this is a single click
@@ -194,5 +195,7 @@ export function initInteraction() {
 
             setActiveItem(type, id);
         }
+
+        updateMainContent();
     }
 }
