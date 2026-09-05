@@ -9,6 +9,7 @@ export function initInteraction() {
     let clickTimer = null;
     const DELAY = 250;
 
+    updateMainContent();
     sidebarContent.addEventListener("click", onClick);
 
     // Handle pointer events

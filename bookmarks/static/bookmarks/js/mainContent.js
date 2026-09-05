@@ -27,7 +27,7 @@ export function updateMainContent() {
 
     function renderFolderView() {
         const activeFolder = folders.find((f) => {
-            if (f.id === id) return true;
+            return f.id === id;
         });
 
         const folderBookmarks = bookmarks.filter((b) => {
@@ -50,11 +50,91 @@ export function updateMainContent() {
         container.append(list);
     }
 
-    function renderBookmarkView() {}
+    function renderBookmarkView() {
+        const activeBookmark = bookmarks.find((b) => {
+            return b.id === id;
+        });
+        const bookmarkFolder = folders.find((f) => {
+            return f.id === activeBookmark.folder_id;
+        });
 
-    function renderDefaultView() {}
+        let locationPath = "";
+        let currentFolder = bookmarkFolder;
 
-    function createBookmarkList(bookmarks, isSearch=false) {
+        while (currentFolder.parent_id !== null) {
+            locationPath =
+                currentFolder.name +
+                (locationPath === "" ? "" : `/${locationPath}`);
+            currentFolder = folders.find((f) => {
+                return f.id === currentFolder.parent_id;
+            });
+        }
+
+        const rootDiv = document.createElement("div");
+        rootDiv.className = "mx-auto py-4";
+        rootDiv.style.maxWidth = "800px";
+
+        rootDiv.innerHTML = `
+            <div class="mb-4">
+                <button class="btn btn-link btn-sm p-0 text-decoration-none text-muted">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Folder
+                </button>
+            </div>
+
+            <h1 class="fw-bold mb-4">${activeBookmark.title}</h1>
+            
+            <hr class="my-4">
+
+            <div class="mb-4">
+                <div class="row align-items-center mb-3">
+                    <div class="col-2">
+                        <span class="text-muted fw-bold text-uppercase">URL</span>
+                    </div>
+                    <div class="col-10">
+                        <a href="${activeBookmark.url}" target="_blank" class="text-break text-decoration-none fs-5">
+                            ${activeBookmark.url} <i class="bi bi-box-arrow-up-right small ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="row align-items-center mb-3">
+                    <div class="col-2">
+                        <span class="text-muted fw-bold text-uppercase">Location</span>
+                    </div>
+                    <div class="col-10">
+                        <span class="badge bg-secondary px-2.5 py-1.5 fs-6">
+                            ${locationPath}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-4">
+
+            <div class="d-flex gap-3">
+                <button class="btn btn-primary d-flex align-items-center">
+                    <i class="bi bi-pencil-square me-2"></i> Edit Bookmark
+                </button>
+                <button class="btn btn-outline-danger d-flex align-items-center">
+                    <i class="bi bi-trash me-2"></i> Delete
+                </button>
+            </div>
+        `;
+
+        container.append(rootDiv);
+    }
+
+    function renderDefaultView() {
+        const div = document.createElement("div");
+        div.className = "p-5";
+        div.innerHTML = `
+            <p class="text-center text-muted">Select a bookmark or folder.</p>
+        `;
+
+        container.append(div);
+    }
+
+    function createBookmarkList(bookmarks, isSearch = false) {
         // Create bookmark list
         const list = document.createElement("div");
         list.className = "list-group list-group-flush border-top border-bottom";
@@ -96,7 +176,7 @@ export function updateMainContent() {
                 </button>
             `;
 
-            bookmarkLi.append(btnContainer)
+            bookmarkLi.append(btnContainer);
 
             list.append(bookmarkLi);
         });

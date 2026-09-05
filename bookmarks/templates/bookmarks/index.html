@@ -42,17 +42,6 @@
                                     <span>Bookmark2</span>
                                 </div>
                             </li>
-
-                            <li class="tree-folder folder-collapsed folder-empty">
-                                <div class="tree-item">
-                                    <i class="bi bi-caret-right-fill tree-caret-icon"></i>
-                                    <i class="bi bi-folder-fill tree-folder-icon"></i>
-                                    <span> Folder Name 2</span>
-                                </div>
-        
-                                <ul class="tree-list">  
-                                </ul>
-                            </li>
                         </ul>
                     </li>
 
@@ -107,10 +96,53 @@
                 <button class="btn btn-primary btn-sm"><i class="bi bi-plus-lg me-1"></i>Add Bookmark</button>
             </div>
 
-            <div class="card p-5 text-center border">
-                <div class="card-body">
-                    <h5 class="card-title fw-bold">Stash is empty.</h5>
-                    <p class="card-text text-muted">Create a folder or add some bookmarks.</p>
+            <div id="main-content-container" class="main-content-container">
+                <div class="mx-auto py-4" style="max-width: 800px;">
+                    <div class="mb-4">
+                        <button class="btn btn-link btn-sm p-0 text-decoration-none text-muted">
+                            <i class="bi bi-arrow-left me-1"></i> Back to Folder
+                        </button>
+                    </div>
+            
+                    <h1 class="fw-bold mb-4">Bookmark Title</h1>
+                    
+                    <hr class="my-4">
+            
+                    <div class="mb-4">
+                        <div class="row align-items-center mb-3">
+                            <div class="col-2">
+                                <span class="text-muted fw-bold text-uppercase">URL</span>
+                            </div>
+                            <div class="col-10">
+                                <a href="https://example.com" target="_blank" class="text-break text-decoration-none fs-5">
+                                    https://example.com <i class="bi bi-box-arrow-up-right small ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="row align-items-center mb-3">
+                            <div class="col-2">
+                                <span class="text-muted fw-bold text-uppercase">Location</span>
+                            </div>
+                            <div class="col-10">
+                                <span class="badge bg-secondary px-2.5 py-1.5 fs-6">
+                                    Folder / Nested Subfolder
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+            
+                    <hr class="my-4">
+            
+                    <div class="d-flex gap-3">
+                        <button class="btn btn-primary d-flex align-items-center">
+                            <i class="bi bi-pencil-square me-2"></i> Edit Bookmark
+                        </button>
+                        <button class="btn btn-outline-danger d-flex align-items-center">
+                            <i class="bi bi-trash me-2"></i> Delete
+                        </button>
+                    </div>
+            
                 </div>
             </div>
             
