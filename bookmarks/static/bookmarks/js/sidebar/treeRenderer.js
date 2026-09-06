@@ -1,4 +1,4 @@
-import { getFolders, getBookmarks } from "./state.js";
+import { getFolders, getBookmarks } from "../state.js";
 
 export function rebuildTree() {
     const folders = getFolders();

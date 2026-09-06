@@ -1,5 +1,5 @@
-import { updateMainContent } from "./mainContent.js";
-import { setActiveItem } from "./state.js";
+import { updateMainContent } from "../mainContent/mainContentRenderer.js";
+import { setActiveItem } from "../state.js";
 
 export function initInteraction() {
     const sidebarContent = document.getElementById("sidebar-content");

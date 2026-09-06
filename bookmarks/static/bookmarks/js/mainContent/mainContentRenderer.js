@@ -1,4 +1,4 @@
-import { getActiveItem, getBookmarks, getFolders } from "./state.js";
+import { getActiveItem, getBookmarks, getFolders } from "../state.js";
 
 export function updateMainContent() {
     const container = document.getElementById("main-content-container");

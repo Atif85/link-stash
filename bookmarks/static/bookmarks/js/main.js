@@ -1,7 +1,7 @@
 import { setStashState } from "./state.js";
-import { initSidebar } from "./sidebar.js";
-import { rebuildTree } from "./tree.js";
-import { initInteraction } from "./interaction.js";
+import { initSidebar } from "./sidebar/sidebarController.js";
+import { rebuildTree } from "./sidebar/treeRenderer.js";
+import { initInteraction } from "./sidebar/treeController.js";
 
 document.addEventListener("DOMContentLoaded", () => {
     initSidebar();
