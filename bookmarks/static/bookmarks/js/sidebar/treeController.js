@@ -1,7 +1,7 @@
 import { updateMainContent } from "../mainContent/mainContentRenderer.js";
 import { setActiveItem } from "../state.js";
 
-export function initInteraction() {
+export function initTreeInteraction() {
     const sidebarContent = document.getElementById("sidebar-content");
     const rootList = document.getElementById("root-list");
 

@@ -1,7 +1,8 @@
 import { setStashState } from "./state.js";
 import { initSidebar } from "./sidebar/sidebarController.js";
 import { rebuildTree } from "./sidebar/treeRenderer.js";
-import { initInteraction } from "./sidebar/treeController.js";
+import { initTreeInteraction } from "./sidebar/treeController.js";
+import { initSearch } from "./search/searchController.js";
 
 document.addEventListener("DOMContentLoaded", () => {
     initSidebar();
@@ -12,7 +13,9 @@ document.addEventListener("DOMContentLoaded", () => {
         .then((data) => {
             // Set the intial state
             setStashState(data.folders, data.bookmarks);
+
             rebuildTree();
-            initInteraction();
+            initTreeInteraction();
+            initSearch();
         });
 });

@@ -1,11 +1,16 @@
 import { getActiveItem, getBookmarks, getFolders } from "../state.js";
 
-export function updateMainContent() {
+export function updateMainContent(searchResults = null) {
     const container = document.getElementById("main-content-container");
-    const activeItem = getActiveItem();
-
     container.innerHTML = "";
 
+    // If searching dispaly those results
+    if (searchResults !== null) {
+        renderSearchView(searchResults);
+        return;
+    }
+
+    const activeItem = getActiveItem();
     if (!activeItem) {
         renderDefaultView(container);
         return;
@@ -23,6 +28,30 @@ export function updateMainContent() {
     // If a Bookmark is selected
     else if (type === "b") {
         renderBookmarkView();
+    }
+
+    function renderSearchView() {
+        const resultsCount = searchResults.length;
+
+        const headerDiv = document.createElement("div");
+        headerDiv.className = "d-flex align-items-center mb-2";
+        headerDiv.innerHTML = `
+            <i class="bi bi-search text-secondary fs-4 me-2"></i>
+            <h2 class="fs-4 fw-bold m-0">Found ${resultsCount} results</h2>
+        `;
+
+        container.append(headerDiv);
+
+        if (resultsCount === 0) {
+            const emptyDiv = document.createElement("div");
+            emptyDiv.className = "text-muted p-4 text-center";
+            emptyDiv.textContent = "No bookmarks match your search.";
+            container.append(emptyDiv);
+            return;
+        }
+
+        const list = createBookmarkList(searchResults);
+        container.append(list);
     }
 
     function renderFolderView() {
@@ -135,6 +164,11 @@ export function updateMainContent() {
     }
 
     function createBookmarkList(bookmarks, isSearch = false) {
+        if (!bookmarks) {
+            console.log("Bookmarks is undefined");
+            return;
+        }
+
         // Create bookmark list
         const list = document.createElement("div");
         list.className = "list-group list-group-flush border-top border-bottom";
