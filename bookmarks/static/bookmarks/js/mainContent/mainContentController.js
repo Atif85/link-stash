@@ -1,5 +1,6 @@
+import { renderBookmarkForm } from "../editor/editorRenderer.js";
 import { getTreeElement, setElementActive } from "../sidebar/treeController.js";
-import { getBookmarks, getFolders } from "../state.js";
+import { getBookmarks, getFolders, getActiveItem } from "../state.js";
 
 export function initMainContentInteraction() {
     const container = document.getElementById("main-content-container");
@@ -12,9 +13,21 @@ export function initMainContentInteraction() {
         const targetButton = target.closest("button");
         if (!targetButton) return;
 
+        const bookmarks = getBookmarks();
+        const folders = getFolders();
+
         // Find the id
         const itemWrapper = target.closest("[data-id]");
         const id = parseInt(itemWrapper.dataset.id, 10);
+
+        const targetBookmark = bookmarks.find((b) => {
+            return b.id === id;
+        });
+        if (!targetBookmark) return;
+        const parentFolder = folders.find((f) => {
+            return f.id === targetBookmark.folder_id;
+        });
+        if (!parentFolder) return;
 
         // View details button clicked
         if (targetButton.classList.contains("view-details-btn")) {
@@ -25,7 +38,7 @@ export function initMainContentInteraction() {
         }
         // Edit button clicked
         else if (targetButton.classList.contains("edit-btn")) {
-            console.log(`Edit button clicked for bookmark: ${id}`);
+            renderBookmarkForm(targetBookmark, parentFolder);
         }
         // Delete button clicked
         else if (targetButton.classList.contains("delete-btn")) {
@@ -33,19 +46,6 @@ export function initMainContentInteraction() {
         }
         // Back to folder button clicked
         else if (targetButton.classList.contains("back-btn")) {
-            const bookmarks = getBookmarks();
-            const folders = getFolders();
-
-            const targetBookmark = bookmarks.find((b) => {
-                return b.id === id;
-            });
-
-            const parentFolder = folders.find((f) => {
-                return f.id === targetBookmark.folder_id;
-            });
-
-            if (!parentFolder) return;
-
             // Find folder's tree element and set it active
             const treeElement = getTreeElement(parentFolder.id, "f");
             if (!treeElement) return;
@@ -53,7 +53,34 @@ export function initMainContentInteraction() {
         }
     });
 
-    addBookmarkBtn.addEventListener("click", (event) => {
-        console.log("Add bookmark button clicked");
+    addBookmarkBtn.addEventListener("click", () => {
+        const activeItem = getActiveItem();
+        const { type, id } = activeItem;
+
+        const bookmarks = getBookmarks();
+        const folders = getFolders();
+
+        // If a Folder is selected
+        if (type === "f") {
+            const activeFolder = folders.find((f) => {
+                return f.id === id;
+            });
+
+            if (!activeFolder) return;
+            renderBookmarkForm(null, activeFolder);
+        }
+        // If a Bookmark is selected
+        else if (type === "b") {
+            const activeBookmark = bookmarks.find((b) => {
+                return b.id === id;
+            });
+            if (!activeBookmark) return;
+            const parentFolder = folders.find((f) => {
+                return f.id === activeBookmark.folder_id;
+            });
+            if (!parentFolder) return;
+
+            renderBookmarkForm(null, parentFolder);
+        }
     });
 }

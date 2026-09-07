@@ -83,21 +83,12 @@ export function updateMainContent(searchResults = null) {
         const activeBookmark = bookmarks.find((b) => {
             return b.id === id;
         });
+
         const bookmarkFolder = folders.find((f) => {
             return f.id === activeBookmark.folder_id;
         });
 
-        let locationPath = "";
-        let currentFolder = bookmarkFolder;
-
-        while (currentFolder.parent_id !== null) {
-            locationPath =
-                currentFolder.name +
-                (locationPath === "" ? "" : `/${locationPath}`);
-            currentFolder = folders.find((f) => {
-                return f.id === currentFolder.parent_id;
-            });
-        }
+        const locationPath = getFolderPath(bookmarkFolder);
 
         const rootDiv = document.createElement("div");
         rootDiv.className = "mx-auto py-4";
@@ -224,4 +215,23 @@ export function updateMainContent(searchResults = null) {
 
         return list;
     }
+}
+
+export function getFolderPath(folder) {
+    if (!folder) return "";
+    const folders = getFolders();
+
+    let locationPath = "";
+    let currentFolder = folder;
+
+    while (currentFolder.parent_id !== null) {
+        locationPath =
+            currentFolder.name +
+            (locationPath === "" ? "" : `/${locationPath}`);
+        currentFolder = folders.find((f) => {
+            return f.id === currentFolder.parent_id;
+        });
+    }
+
+    return locationPath;
 }
