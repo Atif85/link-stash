@@ -103,9 +103,12 @@ export function updateMainContent(searchResults = null) {
         rootDiv.className = "mx-auto py-4";
         rootDiv.style.maxWidth = "800px";
 
+        // Set id in dataset
+        rootDiv.dataset.id = activeBookmark.id;
+
         rootDiv.innerHTML = `
             <div class="mb-4">
-                <button class="btn btn-link btn-sm p-0 text-decoration-none text-muted">
+                <button class="back-btn btn btn-link btn-sm p-0 text-decoration-none text-muted">
                     <i class="bi bi-arrow-left me-1"></i> Back to Folder
                 </button>
             </div>
@@ -141,10 +144,10 @@ export function updateMainContent(searchResults = null) {
             <hr class="my-4">
 
             <div class="d-flex gap-3">
-                <button class="btn btn-primary d-flex align-items-center">
+                <button class="edit-btn btn btn-primary d-flex align-items-center">
                     <i class="bi bi-pencil-square me-2"></i> Edit Bookmark
                 </button>
-                <button class="btn btn-outline-danger d-flex align-items-center">
+                <button class="delete-btn btn btn-outline-danger d-flex align-items-center">
                     <i class="bi bi-trash me-2"></i> Delete
                 </button>
             </div>
@@ -179,6 +182,10 @@ export function updateMainContent(searchResults = null) {
             bookmarkLi.className =
                 "list-group-item d-flex align-items-center p-0";
 
+            // Set id and type in dataset
+            bookmarkLi.dataset.id = bookmark.id;
+            //bookmarkLi.dataset.type = "b";
+
             const anchor = document.createElement("a");
             anchor.href = bookmark.url;
             anchor.target = "_blank";
@@ -199,13 +206,13 @@ export function updateMainContent(searchResults = null) {
             btnContainer.className = "btn-group d-flex p-3";
 
             btnContainer.innerHTML = `
-                <button class="btn btn-outline-secondary view-details-btn border-0" title="View Details">
+                <button class="view-details-btn btn btn-outline-secondary border-0" title="View Details">
                 <i class="bi bi-info-circle"></i>
                 </button>
-                <button class="btn btn-outline-secondary edit-btn border-0" title="Edit">
+                <button class="edit-btn btn btn-outline-secondary border-0" title="Edit">
                     <i class="bi bi-pencil"></i>
                 </button>
-                <button class="btn btn-outline-secondary delete-btn border-0" title="Delete">
+                <button class="delete-btn btn btn-outline-secondary border-0" title="Delete">
                     <i class="bi bi-trash"></i>
                 </button>
             `;

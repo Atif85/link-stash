@@ -16,7 +16,7 @@ export function rebuildTree() {
     }
 
     // Clear the root list
-    const rootList = document.getElementById("root-list");
+    const rootList = document.getElementById("root-tree-list");
     rootList.innerHTML = "";
 
     // Find the root folder

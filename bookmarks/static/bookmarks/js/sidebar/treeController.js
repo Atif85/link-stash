@@ -3,7 +3,7 @@ import { setActiveItem } from "../state.js";
 
 export function initTreeInteraction() {
     const sidebarContent = document.getElementById("sidebar-content");
-    const rootList = document.getElementById("root-list");
+    const rootList = document.getElementById("root-tree-list");
 
     // Handle clicks events
     let clickTimer = null;
@@ -180,23 +180,52 @@ export function initTreeInteraction() {
             }
         }
     }
+}
 
-    // Set element active and update the state
-    function setElementActive(element, type = null, id = null) {
-        const currentActive = document.querySelector(".tree-item.active");
+export function getTreeElement(id, type) {
+    const rootList = document.getElementById("root-tree-list");
+    const treeLi = rootList.querySelector(
+        `[data-id="${id}"][data-type="${type}"]`,
+    );
 
-        if (currentActive !== null) {
-            currentActive.classList.remove("active");
+    if (!treeLi) return null;
+
+    const treeElement = treeLi.querySelector(".tree-item");
+
+    return treeElement;
+}
+
+// Set element active and update the state
+export function setElementActive(element, type = null, id = null) {
+    const currentActive = document.querySelector(".tree-item.active");
+
+    if (currentActive !== null) {
+        currentActive.classList.remove("active");
+    }
+
+    if (element === null) {
+        setActiveItem(null, null);
+    } else {
+        element.classList.add("active");
+
+        setActiveItem(type, id);
+    }
+
+    expandAllParentFolders(element);
+
+    updateMainContent();
+}
+
+function expandAllParentFolders(treeItem) {
+    let parentFolder = treeItem.closest(".tree-folder");
+
+    while (parentFolder) {
+        parentFolder.classList.remove("folder-collapsed");
+        parentFolder.classList.add("folder-expanded");
+
+        const parentElement = parentFolder.parentElement;
+        if (parentElement) {
+            parentFolder = parentElement.closest(".tree-folder");
         }
-
-        if (element === null) {
-            setActiveItem(null, null);
-        } else {
-            element.classList.add("active");
-
-            setActiveItem(type, id);
-        }
-
-        updateMainContent();
     }
 }

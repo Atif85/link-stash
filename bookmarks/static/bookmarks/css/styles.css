@@ -72,7 +72,7 @@ body {
     gap: 6px;
 }
 
-#root-list li {
+#root-tree-list li {
     transition: transform 200ms ease;
     will-change: transform;
 }
