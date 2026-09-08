@@ -1,4 +1,5 @@
 import { getFolderPath } from "../mainContent/mainContentRenderer.js";
+import { initFormInteraction } from "./editorController.js";
 
 export function renderBookmarkForm(bookmark = null, parentFolder) {
     const container = document.getElementById("main-content-container");
@@ -73,4 +74,6 @@ export function renderBookmarkForm(bookmark = null, parentFolder) {
     `;
 
     container.append(rootDiv);
+
+    initFormInteraction();
 }

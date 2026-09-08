@@ -54,11 +54,22 @@ export function initMainContentInteraction() {
     });
 
     addBookmarkBtn.addEventListener("click", () => {
-        const activeItem = getActiveItem();
-        const { type, id } = activeItem;
-
         const bookmarks = getBookmarks();
         const folders = getFolders();
+        const activeItem = getActiveItem();
+
+        if (!activeItem) {
+            const rootFolder = folders.find((f) => {
+                return f.parent_id === null && f.name === "Root";
+            });
+
+            if (!rootFolder) return;
+
+            renderBookmarkForm(null, rootFolder);
+            return;
+        }
+
+        const { type, id } = activeItem;
 
         // If a Folder is selected
         if (type === "f") {
@@ -79,7 +90,6 @@ export function initMainContentInteraction() {
                 return f.id === activeBookmark.folder_id;
             });
             if (!parentFolder) return;
-
             renderBookmarkForm(null, parentFolder);
         }
     });

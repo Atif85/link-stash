@@ -233,5 +233,9 @@ export function getFolderPath(folder) {
         });
     }
 
+    if (!locationPath) {
+        locationPath = "Root:";
+    }
+
     return locationPath;
 }

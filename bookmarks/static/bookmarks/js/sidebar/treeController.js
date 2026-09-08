@@ -217,6 +217,7 @@ export function setElementActive(element, type = null, id = null) {
 }
 
 function expandAllParentFolders(treeItem) {
+    if (!treeItem) return;
     let parentFolder = treeItem.closest(".tree-folder");
 
     while (parentFolder) {
