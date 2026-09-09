@@ -1,7 +1,9 @@
+import json
+import urllib
 from django.shortcuts import redirect, render
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
+from django.http import HttpResponseNotAllowed, JsonResponse
 
 from bookmarks.forms import LoginForm, RegisterForm
 
@@ -13,6 +15,183 @@ def index(request):
     return render(request, "bookmarks/index.html")
 
 
+# Bookmark Api
+@login_required
+def create_bookmark(request):
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
+
+    # Parse Json
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({"success": False, "error": "Invalid Json"}, status=400)
+
+    try:
+        user = request.user
+
+        cleaned, errors = _validate_bookmark_input(data, isEdit=False)
+        if errors:
+            return JsonResponse({"success": False, "errors": errors}, status=400)
+
+        # Get parent folder
+        parent_folder = Folder.objects.filter(
+            id=cleaned["folder_id"], user=user
+        ).first()
+        if not parent_folder:
+            return JsonResponse(
+                {"success": False, "errors": {"folder": "Parent folder id not found."}},
+                status=404,
+            )
+
+        # Create new bookmark
+        new_bookmark = Bookmark.objects.create(
+            title=cleaned["title"], url=cleaned["url"], folder=parent_folder
+        )
+        new_bookmark.save()
+
+        # Update child_order of parent folder
+        if parent_folder.children_order is None:
+            parent_folder.children_order = []
+
+        bookmark_identifier = f"b_{new_bookmark.id}"
+
+        parent_folder.children_order.append(bookmark_identifier)
+        parent_folder.save()
+
+        return JsonResponse(
+            {
+                "success": True,
+                "bookmark": _serialize_bookmark(new_bookmark),
+            },
+            status=201,
+        )
+
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
+
+
+@login_required
+def edit_bookmark(request, bookmark_id):
+    if request.method != "PATCH":
+        return HttpResponseNotAllowed(["PATCH"])
+
+    # Parse Json
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({"success": False, "error": "Invalid Json"}, status=400)
+
+    try:
+        user = request.user
+
+        cleaned, errors = _validate_bookmark_input(data, isEdit=True)
+        if errors:
+            return JsonResponse({"success": False, "errors": errors}, status=400)
+
+        folder_id = cleaned["folder_id"]
+        new_folder_id = cleaned["new_folder_id"]
+
+        # Find the bookmark
+        bookmark = Bookmark.objects.filter(
+            id=bookmark_id,
+            folder__id=folder_id,
+            folder__user=user,
+        ).first()
+
+        if not bookmark:
+            return JsonResponse(
+                {"success": False, "errors": {"bookmark": "Bookmark not found."}},
+                status=404,
+            )
+
+        # Check if parent folder was changed.
+        if folder_id != new_folder_id:
+            old_parent_folder = Folder.objects.filter(id=folder_id, user=user).first()
+
+            new_parent_folder = Folder.objects.filter(
+                id=new_folder_id, user=user
+            ).first()
+
+            if not old_parent_folder or not new_parent_folder:
+                return JsonResponse(
+                    {"success": False, "errors": {"folder": "Folder not found."}},
+                    status=404,
+                )
+
+            bookmark_identifier = f"b_{bookmark_id}"
+
+            # Remove bookmark from old parent folder's children_order
+            if old_parent_folder.children_order:
+                # Rebuild whole list to remove any duplicates too
+                old_parent_folder.children_order = [
+                    child_id
+                    for child_id in old_parent_folder.children_order
+                    if child_id != bookmark_identifier
+                ]
+                old_parent_folder.save()
+
+            # Add bookmark to new parent folder's children_order
+            if new_parent_folder.children_order is None:
+                new_parent_folder.children_order = []
+            new_parent_folder.children_order.append(bookmark_identifier)
+            new_parent_folder.save()
+
+        bookmark.title = cleaned["title"]
+        bookmark.url = cleaned["url"]
+        bookmark.folder_id = new_folder_id
+        bookmark.save()
+
+        return JsonResponse(
+            {
+                "success": True,
+                "bookmark": _serialize_bookmark(bookmark),
+            },
+            status=200,
+        )
+
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
+
+
+@login_required
+def delete_bookmark(request, bookmark_id):
+    if request.method != "DELETE":
+        return HttpResponseNotAllowed(["DELETE"])
+
+    try:
+        user = request.user
+
+        bookmark = Bookmark.objects.filter(
+            id=bookmark_id,
+            folder__user=user,
+        ).first()
+
+        if not bookmark:
+            return JsonResponse(
+                {"success": False, "errors": {"bookmark": "Bookmark not found."}},
+                status=404,
+            )
+
+        folder = bookmark.folder
+        bookmark_identifier = f"b_{bookmark.id}"
+
+        bookmark.delete()
+
+        # Remove bookmark from its folder's children_order
+        if folder.children_order:
+            folder.children_order = [
+                child_id for child_id in folder.children_order
+                if child_id != bookmark_identifier
+            ]
+            folder.save()
+
+        return JsonResponse({"success": True}, status=200)
+
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
+
+# Stash Api
 @login_required
 def get_stash_data(request):
     # Get the folders and bookmarks
@@ -33,20 +212,12 @@ def get_stash_data(request):
 
     bookmarks_list = []
     for bookmark in bookmarks:
-        bookmarks_list.append(
-            {
-                "id": bookmark.id,
-                "title": bookmark.title,
-                "url": bookmark.url,
-                "folder_id": bookmark.folder_id,
-                "created_at": bookmark.created_at,
-                "favicon_url": bookmark.favicon_url,
-            }
-        )
+        bookmarks_list.append(_serialize_bookmark(bookmark))
 
     return JsonResponse({"folders": folders_list, "bookmarks": bookmarks_list})
 
 
+# Auth
 def login_view(request):
     if request.user.is_authenticated:
         return redirect("index")
@@ -96,3 +267,49 @@ def register_view(request):
             return render(request, "bookmarks/register.html", {"form": form})
 
     return render(request, "bookmarks/register.html", {"form": RegisterForm()})
+
+
+def _validate_bookmark_input(data, isEdit):
+    title_input = data.get("title", "").strip()
+    url_input = data.get("url", "").strip()
+    folder_id = data.get("folder_id")
+
+    if not url_input:
+        return None, {"url": "URL is required."}
+
+    if not folder_id:
+        return None, {"folder": "FolderId is required."}
+
+    # If no title was given, use url as title
+    if not title_input:
+        title_input = url_input
+
+    # Parse url
+    parsed_url = urllib.parse.urlparse(url_input)
+    if not parsed_url.scheme:
+        url_input = "https://" + url_input
+
+    cleaned_data = {
+        "title": title_input,
+        "url": url_input,
+        "folder_id": folder_id,
+    }
+
+    if isEdit == True:
+        new_folder_id = data.get("new_folder_id")
+        if not new_folder_id:
+            new_folder_id = folder_id
+        cleaned_data["new_folder_id"] = new_folder_id
+
+    return cleaned_data, None
+
+
+def _serialize_bookmark(bookmark):
+    return {
+        "id": bookmark.id,
+        "title": bookmark.title,
+        "url": bookmark.url,
+        "folder_id": bookmark.folder_id,
+        "created_at": bookmark.created_at,
+        "favicon_url": bookmark.favicon_url,
+    }

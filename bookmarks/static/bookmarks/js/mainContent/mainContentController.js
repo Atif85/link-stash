@@ -24,6 +24,7 @@ export function initMainContentInteraction() {
             return b.id === id;
         });
         if (!targetBookmark) return;
+        
         const parentFolder = folders.find((f) => {
             return f.id === targetBookmark.folder_id;
         });

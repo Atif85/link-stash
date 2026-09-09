@@ -41,7 +41,7 @@ export function renderBookmarkForm(bookmark = null, parentFolder) {
                     <label for="url" class="text-muted fw-bold text-uppercase">URL</label>
                 </div>  
                 <div class="col-10">
-                    <input type="text" id="url" class="form-control" placeholder="https://example.com" autofocus
+                    <input type="text" id="url" class="form-control" placeholder="https://example.com" required autofocus
                            value="${isEdit ? bookmark.url : ""}">
                     <div id="url-error" class="invalid-feedback">Please enter a valid url.</div>
                 </div>

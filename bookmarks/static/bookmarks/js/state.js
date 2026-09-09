@@ -29,3 +29,23 @@ export function setActiveItem(type, id) {
 export function getActiveItem() {
     return appState.activeItem;
 }
+
+export function addOrUpdateBookmark(bookmark) {
+    if (!bookmark) return;
+    const index = appState.bookmarks.findIndex((b) => b.id === bookmark.id);
+
+    if (index === -1) {
+        appState.bookmarks.push(bookmark);
+    } else {
+        appState.bookmarks[index] = bookmark;
+    }
+}
+
+export function removeBookmark(bookmark) {
+    if (!bookmark) return;
+    const index = appState.bookmarks.findIndex((b) => b.id === bookmark.id);
+
+    if (index !== -1) {
+        appState.bookmarks.splice(index, 1);
+    }
+}

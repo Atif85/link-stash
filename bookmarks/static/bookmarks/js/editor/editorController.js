@@ -1,4 +1,6 @@
+import { addOrUpdateBookmark } from "../state.js";
 import { getTreeElement, setElementActive } from "../sidebar/treeController.js";
+import { rebuildTree } from "../sidebar/treeRenderer.js";
 
 export function initFormInteraction() {
     const form = document.getElementById("bookmark-form");
@@ -38,11 +40,63 @@ export function initFormInteraction() {
             titleValue = urlValue;
         }
 
+        // Get csrf token from the html element
         const csrfToken = document.querySelector(
             "#csrf-container [name=csrfmiddlewaretoken]",
         ).value;
 
-        // TODO: make the fetch()
+        let endpoint = "/api/bookmarks/create/";
+        let method = "POST";
+        let payload = {
+            title: titleValue,
+            url: urlValue,
+            folder_id: parentId,
+        };
+
+        if (formType === "edit") {
+            endpoint = `/api/bookmarks/edit/${bookmarkId}/`;
+            method = "PATCH";
+            payload["new_folder_id"] = parentId;
+        }
+
+        fetch(endpoint, {
+            method: method,
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrfToken,
+            },
+            body: JSON.stringify(payload),
+        })
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+                if (data.success) {
+                    // Update local state
+                    addOrUpdateBookmark(data.bookmark);
+
+                    // Rebuild tree
+                    rebuildTree(); // TODO: only update whats needed
+
+                    // Set the bookmark active
+                    const newTreeItem = getTreeElement(data.bookmark.id, "b");
+                    setElementActive(newTreeItem, "b", data.bookmark.id);
+                } else {
+                    if (data.errors) {
+                        const errors = data.errors;
+                        if (errors.url) {
+                            const urlInput = document.getElementById("url");
+                            const urlError =
+                                document.getElementById("url-error");
+                            urlInput.classList.add("is-invalid");
+                            urlError.textContent = errors.url;
+                        }
+                        console.log(errors);
+                    } else if (data.error) {
+                        console.log(data.error);
+                    }
+                }
+            });
     }
 
     function onCancel(event) {
