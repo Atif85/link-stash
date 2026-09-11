@@ -27,7 +27,7 @@ export function initTreeInteraction() {
     let dragStartX = 0;
     let dragStartY = 0;
 
-    sidebarContent.addEventListener("pointerdown", onPointerDown);
+    //sidebarContent.addEventListener("pointerdown", onPointerDown);
 
     // Pointer functions
     function onPointerDown(event) {
@@ -100,7 +100,7 @@ export function initTreeInteraction() {
         }
     }
 
-    function onPointerUp(event) {
+    function onPointerUp() {
         if (isPendingDrag) {
             isPendingDrag = false;
         }
@@ -167,7 +167,6 @@ export function initTreeInteraction() {
 
                     return;
                 }
-
                 setElementActive(targetTreeItem, targetType, targetID);
             } else {
                 // Double Click
@@ -209,16 +208,22 @@ export function setElementActive(element, type = null, id = null) {
         element.classList.add("active");
 
         setActiveItem(type, id);
+        expandAllParentFolders(element, type);
     }
-
-    expandAllParentFolders(element);
 
     updateMainContent();
 }
 
-function expandAllParentFolders(treeItem) {
-    if (!treeItem) return;
+function expandAllParentFolders(treeItem, type) {
+    if (!treeItem || !type) return;
     let parentFolder = treeItem.closest(".tree-folder");
+    
+    if (type === "f") {
+        const parentElement = parentFolder.parentElement;
+        if (parentElement) {
+            parentFolder = parentElement.closest(".tree-folder");
+        }
+    }
 
     while (parentFolder) {
         parentFolder.classList.remove("folder-collapsed");
