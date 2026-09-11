@@ -1,10 +1,21 @@
 import { renderBookmarkForm } from "../editor/editorRenderer.js";
 import { getTreeElement, setElementActive } from "../sidebar/treeController.js";
-import { getBookmarks, getFolders, getActiveItem } from "../state.js";
+import { rebuildTree } from "../sidebar/treeRenderer.js";
+import {
+    getBookmarks,
+    getFolders,
+    getActiveItem,
+    removeBookmark,
+} from "../state.js";
 
 export function initMainContentInteraction() {
     const container = document.getElementById("main-content-container");
     const addBookmarkBtn = document.getElementById("add-bookmark-btn");
+
+    // Initialize the Bootstrap Modal
+    const deleteModalEl = document.getElementById("del-confirm-modal");
+    const deleteModal = new bootstrap.Modal(deleteModalEl);
+    const confirmDeleteBtn = document.getElementById("confirm-delete-btn");
 
     container.addEventListener("click", (event) => {
         const target = event.target;
@@ -24,7 +35,7 @@ export function initMainContentInteraction() {
             return b.id === id;
         });
         if (!targetBookmark) return;
-        
+
         const parentFolder = folders.find((f) => {
             return f.id === targetBookmark.folder_id;
         });
@@ -43,7 +54,11 @@ export function initMainContentInteraction() {
         }
         // Delete button clicked
         else if (targetButton.classList.contains("delete-btn")) {
-            console.log(`Delete button clicked for bookmark: ${id}`);
+            confirmDeleteBtn.dataset.bookmarkId = id;
+            confirmDeleteBtn.dataset.parentFolderId = parentFolder.id;
+
+            // Show the modal
+            deleteModal.show();
         }
         // Back to folder button clicked
         else if (targetButton.classList.contains("back-btn")) {
@@ -93,5 +108,46 @@ export function initMainContentInteraction() {
             if (!parentFolder) return;
             renderBookmarkForm(null, parentFolder);
         }
+    });
+
+    confirmDeleteBtn.addEventListener("click", () => {
+        const bookmarkId = parseInt(confirmDeleteBtn.dataset.bookmarkId, 10);
+        const parentFolderId = parseInt(confirmDeleteBtn.dataset.parentFolderId, 10);
+
+        // Close the modal popup
+        deleteModal.hide();
+
+        // Get csrf token from the html element
+        const csrfToken = document.querySelector(
+            "#csrf-container [name=csrfmiddlewaretoken]",
+        ).value;
+
+        // Make the DELETE fetch
+        fetch(`/api/bookmarks/delete/${bookmarkId}/`, {
+            method: "DELETE",
+            headers: { "X-CSRFToken": csrfToken },
+        })
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+                if (data.success) {
+                    // Update local state
+                    removeBookmark(bookmarkId);
+
+                    // Rebuild tree
+                    rebuildTree(); // TODO: only update whats needed
+
+                    // Set the parent folder active
+                    const newTreeItem = getTreeElement(parentFolderId, "f");
+                    setElementActive(newTreeItem, "f", parentFolderId);
+                } else {
+                    if (data.errors) {
+                        console.log(data.errors);
+                    } else if (data.error) {
+                        console.log(data.error);
+                    }
+                }
+            });
     });
 }

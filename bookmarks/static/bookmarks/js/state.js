@@ -36,16 +36,48 @@ export function addOrUpdateBookmark(bookmark) {
 
     if (index === -1) {
         appState.bookmarks.push(bookmark);
+        addBookmarkToFolder(bookmark.folder_id, bookmark.id);
     } else {
+        const previousBookmark = appState.bookmarks[index];
         appState.bookmarks[index] = bookmark;
+
+        if (previousBookmark.folder_id !== bookmark.folder_id) {
+            removeBookmarkFromFolder(previousBookmark.folder_id, bookmark.id);
+            addBookmarkToFolder(bookmark.folder_id, bookmark.id);
+        }
     }
 }
 
-export function removeBookmark(bookmark) {
-    if (!bookmark) return;
-    const index = appState.bookmarks.findIndex((b) => b.id === bookmark.id);
+export function removeBookmark(bookmarkId) {
+    if (!bookmarkId) return;
+    const index = appState.bookmarks.findIndex((b) => b.id === bookmarkId);
 
     if (index !== -1) {
+        removeBookmarkFromFolder(appState.bookmarks[index].folder_id, bookmarkId);
         appState.bookmarks.splice(index, 1);
     }
+}
+
+function addBookmarkToFolder(folderId, bookmarkId) {
+    const folder = appState.folders.find((f) => f.id === folderId);
+    if (!folder) return;
+
+    if (!folder.children_order) {
+        folder.children_order = [];
+    }
+
+    const bookmarkIdentifier = `b_${bookmarkId}`;
+    if (!folder.children_order.includes(bookmarkIdentifier)) {
+        folder.children_order.push(bookmarkIdentifier);
+    }
+}
+
+function removeBookmarkFromFolder(folderId, bookmarkId) {
+    const folder = appState.folders.find((f) => f.id === folderId);
+    if (!folder || !folder.children_order) return;
+
+    const bookmarkIdentifier = `b_${bookmarkId}`;
+    folder.children_order = folder.children_order.filter(
+        (childId) => childId !== bookmarkIdentifier,
+    );
 }
