@@ -181,7 +181,8 @@ def delete_bookmark(request, bookmark_id):
         # Remove bookmark from its folder's children_order
         if folder.children_order:
             folder.children_order = [
-                child_id for child_id in folder.children_order
+                child_id
+                for child_id in folder.children_order
                 if child_id != bookmark_identifier
             ]
             folder.save()
@@ -190,6 +191,63 @@ def delete_bookmark(request, bookmark_id):
 
     except Exception as e:
         return JsonResponse({"success": False, "error": str(e)}, status=500)
+
+
+# Folder Api
+@login_required
+def create_folder(request):
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
+
+    # Parse Json
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({"success": False, "error": "Invalid Json"}, status=400)
+
+    try:
+        user = request.user
+
+        cleaned, errors = _validate_folder_input(data)
+        if errors:
+            return JsonResponse({"success": False, "errors": errors}, status=400)
+
+        # Get parent folder
+        parent_folder = Folder.objects.filter(
+            id=cleaned["parent_id"], user=user
+        ).first()
+        if not parent_folder:
+            return JsonResponse(
+                {"success": False, "errors": {"folder": "Parent folder id not found."}},
+                status=404,
+            )
+
+        # Create new folder
+        new_folder = Folder.objects.create(
+            name=cleaned["name"], user=user, parent=parent_folder
+        )
+        new_folder.save()
+
+        # Update child_order of parent folder
+        if parent_folder.children_order is None:
+            parent_folder.children_order = []
+
+        folder_identifier = f"f_{new_folder.id}"
+
+        parent_folder.children_order.append(folder_identifier)
+        parent_folder.save()
+
+        return JsonResponse(
+            {
+                "success": True,
+                "folder": _serialize_folder(new_folder),
+            },
+            status=201,
+        )
+
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
+
 
 # Stash Api
 @login_required
@@ -201,14 +259,7 @@ def get_stash_data(request):
     # Serialize to lists
     folders_list = []
     for folder in folders:
-        folders_list.append(
-            {
-                "id": folder.id,
-                "name": folder.name,
-                "parent_id": folder.parent_id,
-                "children_order": folder.children_order,
-            }
-        )
+        folders_list.append(_serialize_folder(folder))
 
     bookmarks_list = []
     for bookmark in bookmarks:
@@ -312,4 +363,31 @@ def _serialize_bookmark(bookmark):
         "folder_id": bookmark.folder_id,
         "created_at": bookmark.created_at,
         "favicon_url": bookmark.favicon_url,
+    }
+
+
+def _validate_folder_input(data):
+    name_input = data.get("name", "").strip()
+    parent_id = data.get("parent_id")
+
+    if not name_input:
+        return None, {"name": "Name is required."}
+
+    if not parent_id:
+        return None, {"parent": "ParentId is required."}
+
+    cleaned_data = {
+        "name": name_input,
+        "parent_id": parent_id,
+    }
+
+    return cleaned_data, None
+
+
+def _serialize_folder(folder):
+    return {
+        "id": folder.id,
+        "name": folder.name,
+        "parent_id": folder.parent_id,
+        "children_order": folder.children_order,
     }

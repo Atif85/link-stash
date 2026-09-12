@@ -18,6 +18,7 @@ urlpatterns = [
         views.delete_bookmark,
         name="delete_bookmark",
     ),
+    path("api/folders/create/", views.create_folder, name="create_folder"),
 
     # Auth
     path("login", views.login_view, name="login"),

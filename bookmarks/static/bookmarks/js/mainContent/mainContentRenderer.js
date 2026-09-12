@@ -36,21 +36,14 @@ export function updateMainContent(searchResults = null) {
         const headerDiv = document.createElement("div");
         headerDiv.className = "d-flex align-items-center mb-2";
         headerDiv.innerHTML = `
-            <i class="bi bi-search text-secondary fs-4 me-2"></i>
+            <i class="bi bi-search text-secondary fs-3 me-2"></i>
             <h2 class="fs-4 fw-bold m-0">Found ${resultsCount} results</h2>
         `;
 
         container.append(headerDiv);
 
-        if (resultsCount === 0) {
-            const emptyDiv = document.createElement("div");
-            emptyDiv.className = "text-muted p-4 text-center";
-            emptyDiv.textContent = "No bookmarks match your search.";
-            container.append(emptyDiv);
-            return;
-        }
-
-        const list = createBookmarkList(searchResults);
+        const emptyMessage = "No bookmarks match your search.";
+        const list = createBookmarkList(searchResults, emptyMessage);
         container.append(list);
     }
 
@@ -75,7 +68,8 @@ export function updateMainContent(searchResults = null) {
         container.append(headerDiv);
 
         // Create bookmark list
-        const list = createBookmarkList(folderBookmarks);
+        const emptyMessage = "No bookmarks in this folder.";
+        const list = createBookmarkList(folderBookmarks, emptyMessage);
         container.append(list);
     }
 
@@ -130,6 +124,17 @@ export function updateMainContent(searchResults = null) {
                         </span>
                     </div>
                 </div>
+
+                <div class="row align-items-center mb-3">
+                    <div class="col-2">
+                        <span class="text-muted fw-bold text-uppercase">Created At</span>
+                    </div>
+                    <div class="col-10">
+                        <span>
+                            ${formatDate(activeBookmark.created_at)}
+                        </span>
+                    </div>
+                </div>
             </div>
 
             <hr class="my-4">
@@ -157,7 +162,7 @@ export function updateMainContent(searchResults = null) {
         container.append(div);
     }
 
-    function createBookmarkList(bookmarks, isSearch = false) {
+    function createBookmarkList(bookmarks, emptyMessage) {
         if (!bookmarks) {
             console.error("Bookmarks is undefined");
             return;
@@ -166,6 +171,21 @@ export function updateMainContent(searchResults = null) {
         // Create bookmark list
         const list = document.createElement("div");
         list.className = "list-group list-group-flush border-top border-bottom";
+
+        if (bookmarks.length === 0) {
+            list.classList.remove("border-bottom");
+
+            const emptyLi = document.createElement("li");
+            emptyLi.className = "list-group-item d-flex align-items-center p-0";
+
+            const emptyDiv = document.createElement("div");
+            emptyDiv.className = "text-muted p-4 text-center flex-grow-1";
+            emptyDiv.textContent = emptyMessage;
+            emptyLi.append(emptyDiv);
+
+            list.append(emptyLi);
+            return list;
+        }
 
         // Populate bookmark list
         bookmarks.forEach((bookmark) => {
@@ -238,4 +258,13 @@ export function getFolderPath(folder) {
     }
 
     return locationPath;
+}
+
+function formatDate(dateStr) {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("en-US", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+    });
 }

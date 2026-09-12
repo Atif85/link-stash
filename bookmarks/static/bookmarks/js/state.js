@@ -18,6 +18,7 @@ export function getBookmarks() {
     return appState.bookmarks;
 }
 
+// --- Active item method ---
 export function setActiveItem(type, id) {
     if (type === null || id === null) {
         appState.activeItem = null;
@@ -74,20 +75,21 @@ export function getActiveItemFolder() {
     return parentFolder;
 }
 
+// --- Updating bookmark methods ---
 export function addOrUpdateBookmark(bookmark) {
     if (!bookmark) return;
     const index = appState.bookmarks.findIndex((b) => b.id === bookmark.id);
 
     if (index === -1) {
         appState.bookmarks.push(bookmark);
-        addBookmarkToFolder(bookmark.folder_id, bookmark.id);
+        addItemToFolder(bookmark.folder_id, bookmark.id, "b");
     } else {
         const previousBookmark = appState.bookmarks[index];
         appState.bookmarks[index] = bookmark;
 
         if (previousBookmark.folder_id !== bookmark.folder_id) {
-            removeBookmarkFromFolder(previousBookmark.folder_id, bookmark.id);
-            addBookmarkToFolder(bookmark.folder_id, bookmark.id);
+            removeItemFromFolder(previousBookmark.folder_id, bookmark.id, "b");
+            addItemToFolder(bookmark.folder_id, bookmark.id, "b");
         }
     }
 }
@@ -97,15 +99,42 @@ export function removeBookmark(bookmarkId) {
     const index = appState.bookmarks.findIndex((b) => b.id === bookmarkId);
 
     if (index !== -1) {
-        removeBookmarkFromFolder(
-            appState.bookmarks[index].folder_id,
-            bookmarkId,
-        );
+        removeItemFromFolder(appState.bookmarks[index].folder_id, bookmarkId, "b");
         appState.bookmarks.splice(index, 1);
     }
 }
 
-function addBookmarkToFolder(folderId, bookmarkId) {
+// --- Updating folder methods ---
+export function addOrUpdateFolder(folder) {
+    if (!folder) return;
+    const index = appState.folders.findIndex((f) => f.id === folder.id);
+
+    if (index === -1) {
+        appState.folders.push(folder);
+        addItemToFolder(folder.parent_id, folder.id, "f");
+    } else {
+        const previousFolder = appState.folders[index];
+        appState.folders[index] = folder;
+
+        if (previousFolder.parent_id !== folder.parent_id) {
+            removeItemFromFolder(previousFolder.parent_id, folder.id, "f");
+            addItemToFolder(folder.parent_id, folder.id, "f");
+        }
+    }
+}
+
+export function removeFolder(folderId) {
+    if (!folderId) return;
+    const index = appState.folders.findIndex((f) => f.id === folderId);
+
+    if (index !== -1) {
+        removeItemFromFolder(appState.bookmarks[index].folder_id, bookmarkId);
+        appState.folders.splice(index, 1);
+    }
+}
+
+// Helpers
+function addItemToFolder(folderId, id, type) {
     const folder = appState.folders.find((f) => f.id === folderId);
     if (!folder) return;
 
@@ -113,18 +142,18 @@ function addBookmarkToFolder(folderId, bookmarkId) {
         folder.children_order = [];
     }
 
-    const bookmarkIdentifier = `b_${bookmarkId}`;
-    if (!folder.children_order.includes(bookmarkIdentifier)) {
-        folder.children_order.push(bookmarkIdentifier);
+    const itemIdentifier = type === "f" ? `f_${id}` : `b_${id}`;
+    if (!folder.children_order.includes(itemIdentifier)) {
+        folder.children_order.push(itemIdentifier);
     }
 }
 
-function removeBookmarkFromFolder(folderId, bookmarkId) {
+function removeItemFromFolder(folderId, id, type) {
     const folder = appState.folders.find((f) => f.id === folderId);
     if (!folder || !folder.children_order) return;
 
-    const bookmarkIdentifier = `b_${bookmarkId}`;
+    const itemIdentifier = type === "f" ? `f_${id}` : `b_${id}`;
     folder.children_order = folder.children_order.filter(
-        (childId) => childId !== bookmarkIdentifier,
+        (childId) => childId !== itemIdentifier,
     );
 }

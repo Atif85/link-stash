@@ -1,9 +1,11 @@
-import { getActiveItemFolder } from "../state.js";
+import { addOrUpdateFolder, getActiveItemFolder } from "../state.js";
 import {
     expandAllParentFolders,
     getTreeElement,
     getTreeFolderList,
+    setElementActive,
 } from "./treeController.js";
+import { rebuildTree } from "./treeRenderer.js";
 
 export function initSidebarInteraction() {
     // Get the resizer and sidebar elements
@@ -29,7 +31,7 @@ export function initSidebarInteraction() {
     const addFolderBtn = document.getElementById("add-folder-btn");
     addFolderBtn.addEventListener("click", onAddFolderClicked);
 
-    function onAddFolderClicked(event) {
+    function onAddFolderClicked() {
         const activeItemFolder = getActiveItemFolder();
         if (!activeItemFolder) return;
 
@@ -87,8 +89,45 @@ export function initSidebarInteraction() {
         }
 
         function onSubmit() {
-            // TODO: make the fetch
-            inputListItem.remove();
+            const name = input.value.trim();
+            console.log(`New folder ${name} under ${activeItemFolder.name}`);
+
+            // Get csrf token from the html element
+            const csrfToken = document.querySelector(
+                "#csrf-container [name=csrfmiddlewaretoken]",
+            ).value;
+
+            const payload = {
+                name: name,
+                parent_id: activeItemFolder.id,
+            };
+            fetch("/api/folders/create/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrfToken,
+                },
+                body: JSON.stringify(payload),
+            })
+                .then((response) => {
+                    return response.json();
+                })
+                .then((data) => {
+                    if (data.success) {
+                        inputListItem.remove();
+
+                        // Update local state
+                        addOrUpdateFolder(data.folder);
+
+                        rebuildTree(); // TODO: only update whats needed
+
+                        const newTreeItem = getTreeElement(data.folder.id, "f");
+                        setElementActive(newTreeItem, "f", data.folder.id);
+                    } else {
+                        inputListItem.remove();
+                        console.error(data.error);
+                    }
+                });
         }
     }
 
