@@ -57,6 +57,11 @@ body {
     display: none;
 }
 
+#root-tree-list li {
+    transition: transform 200ms ease;
+    will-change: transform;
+}
+
 /* Styling for each tree item */
 .tree-item {
     display: flex;
@@ -72,11 +77,6 @@ body {
     gap: 6px;
 }
 
-#root-tree-list li {
-    transition: transform 200ms ease;
-    will-change: transform;
-}
-
 .tree-item:hover {
     background-color: var(--bs-secondary-bg);
 }
@@ -84,6 +84,35 @@ body {
 .tree-item.active {
     color: var(--bs-primary-text-emphasis);
     background-color: var(--bs-primary-bg-subtle);
+}
+
+.tree-folder-input {
+    display: flex;
+    align-items: stretch;
+
+    padding-left: 8px;
+
+    user-select: none;
+    touch-action: none;
+    color: inherit;
+    transition: background-color 0.15s ease, color 0.15s ease;
+    gap: 6px;
+}
+
+.tree-folder-input .tree-folder-icon {
+    align-self: center;
+    margin-top: 4px;
+    margin-bottom: 4px;
+}
+
+.tree-folder-input input {
+    margin: 0px;
+    border-radius: 0%;
+    line-height: normal
+}
+
+.tree-folder-input:hover {
+    background-color: var(--bs-secondary-bg);
 }
 
 /* Styling for the icons */
@@ -107,8 +136,23 @@ body {
 }
 
 /* Hide caret if folder is empty */
-.tree-folder.folder-empty .tree-caret-icon {
+.folder-empty .tree-caret-icon {
     display: none;
+}
+
+#add-folder-btn {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+#add-folder-btn:hover {
+    background-color: var(--bs-secondary-bg);
+    color: var(--bs-body-color) !important;
 }
 
 /* --- Dragging --- */

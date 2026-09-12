@@ -30,6 +30,50 @@ export function getActiveItem() {
     return appState.activeItem;
 }
 
+export function getActiveItemFolder() {
+    const bookmarks = appState.bookmarks;
+    const folders = appState.folders;
+    const activeItem = appState.activeItem;
+
+    // The parent folder of the active item
+    let parentFolder;
+
+    if (!activeItem) {
+        const rootFolder = folders.find((f) => {
+            return f.parent_id === null && f.name === "Root";
+        });
+        if (!rootFolder) return null;
+
+        parentFolder = rootFolder;
+    } else {
+        const { type, id } = activeItem;
+
+        // If a Folder is active
+        if (type === "f") {
+            const activeFolder = folders.find((f) => {
+                return f.id === id;
+            });
+            if (!activeFolder) return null;
+
+            parentFolder = activeFolder;
+        }
+        // If a Bookmark is active
+        else if (type === "b") {
+            const activeBookmark = bookmarks.find((b) => {
+                return b.id === id;
+            });
+            if (!activeBookmark) return null;
+            const bookmarkFolder = folders.find((f) => {
+                return f.id === activeBookmark.folder_id;
+            });
+            if (!bookmarkFolder) return null;
+            parentFolder = bookmarkFolder;
+        }
+    }
+
+    return parentFolder;
+}
+
 export function addOrUpdateBookmark(bookmark) {
     if (!bookmark) return;
     const index = appState.bookmarks.findIndex((b) => b.id === bookmark.id);
@@ -53,7 +97,10 @@ export function removeBookmark(bookmarkId) {
     const index = appState.bookmarks.findIndex((b) => b.id === bookmarkId);
 
     if (index !== -1) {
-        removeBookmarkFromFolder(appState.bookmarks[index].folder_id, bookmarkId);
+        removeBookmarkFromFolder(
+            appState.bookmarks[index].folder_id,
+            bookmarkId,
+        );
         appState.bookmarks.splice(index, 1);
     }
 }

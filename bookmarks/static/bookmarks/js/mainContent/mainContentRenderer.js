@@ -159,7 +159,7 @@ export function updateMainContent(searchResults = null) {
 
     function createBookmarkList(bookmarks, isSearch = false) {
         if (!bookmarks) {
-            console.log("Bookmarks is undefined");
+            console.error("Bookmarks is undefined");
             return;
         }
 

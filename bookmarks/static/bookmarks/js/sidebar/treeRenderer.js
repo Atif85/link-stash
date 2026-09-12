@@ -109,7 +109,8 @@ function createTreeFolder(name, childCount) {
 
     // Set the classes
     listItem.className =
-        "tree-folder folder-collapsed" + (childCount > 0 ? "" : " folder-empty");
+        "tree-folder folder-collapsed" +
+        (childCount > 0 ? "" : " folder-empty");
 
     listItem.innerHTML = `
         <div class="tree-item">

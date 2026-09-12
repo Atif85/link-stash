@@ -133,6 +133,11 @@ export function initTreeInteraction() {
         // Find the closest list item. (bookmark/folder)
         const targetli = targetElement.closest("li");
         if (!targetli) {
+            // if add folder btn clicked skip else set nothing active
+            const closestBtn = targetElement.closest("button");
+
+            if (closestBtn && closestBtn.id === "add-folder-btn") return;
+
             setElementActive(null);
             return;
         }
@@ -194,6 +199,18 @@ export function getTreeElement(id, type) {
     return treeElement;
 }
 
+export function getTreeFolderList(folderId) {
+    const rootList = document.getElementById("root-tree-list");
+    const treeLi = rootList.querySelector(
+        `[data-id="${folderId}"][data-type="f"]`,
+    );
+    
+    if (!treeLi) return rootList;
+
+    const folderList = treeLi.querySelector("ul");
+    return folderList;
+}
+
 // Set element active and update the state
 export function setElementActive(element, type = null, id = null) {
     const currentActive = document.querySelector(".tree-item.active");
@@ -214,11 +231,11 @@ export function setElementActive(element, type = null, id = null) {
     updateMainContent();
 }
 
-function expandAllParentFolders(treeItem, type) {
+export function expandAllParentFolders(treeItem, type, expandSelf = false) {
     if (!treeItem || !type) return;
     let parentFolder = treeItem.closest(".tree-folder");
-    
-    if (type === "f") {
+
+    if (!expandSelf && type === "f") {
         const parentElement = parentFolder.parentElement;
         if (parentElement) {
             parentFolder = parentElement.closest(".tree-folder");

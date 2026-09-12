@@ -19,7 +19,14 @@
 
             <!-- Sidebar Main Content -->
             <div id="sidebar-content" class="flex-grow-1 overflow-y-auto mb-3">
-                <p class="text-muted fw-semibold mb-2 text-uppercase">My Stash</p>
+                <div class="d-flex flex-row justify-content-between align-items-center mb-2">
+                    <span class="text-muted fw-semibold text-uppercase">
+                        My Stash
+                    </span>
+                    <button id="add-folder-btn" class="btn btn-sm text-muted rounded" title="New Folder">
+                        <i class="bi bi-folder-plus fs-5"></i>
+                    </button>
+                </div>
 
                 <ul id="root-tree-list" class="tree-list">
                     <li class="tree-folder folder-expanded">
@@ -51,7 +58,6 @@
                             <span>Bookmark3</span>
                         </div>
                     </li>
-                    
                 </ul>
             </div>
 
@@ -106,7 +112,7 @@
                     </div>
                 </div>
 
-                <button id="add-bookmark-btn" class="add-bookmark-btn btn btn-primary btn-sm d-flex align-items-center">
+                <button id="add-bookmark-btn" class="btn btn-primary btn-sm d-flex align-items-center">
                     <i class="bi bi-plus-lg me-1"></i>Add Bookmark
                 </button>
             </div>

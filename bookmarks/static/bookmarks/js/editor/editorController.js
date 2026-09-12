@@ -91,15 +91,15 @@ export function initFormInteraction() {
                             urlInput.classList.add("is-invalid");
                             urlError.textContent = errors.url;
                         }
-                        console.log(errors);
+                        console.error(errors);
                     } else if (data.error) {
-                        console.log(data.error);
+                        console.error(data.error);
                     }
                 }
             });
     }
 
-    function onCancel(event) {
+    function onCancel() {
         const treeElement = getTreeElement(parentId, "f");
         setElementActive(treeElement, "f", parentId);
     }

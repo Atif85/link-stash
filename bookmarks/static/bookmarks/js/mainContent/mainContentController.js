@@ -4,8 +4,8 @@ import { rebuildTree } from "../sidebar/treeRenderer.js";
 import {
     getBookmarks,
     getFolders,
-    getActiveItem,
     removeBookmark,
+    getActiveItemFolder,
 } from "../state.js";
 
 export function initMainContentInteraction() {
@@ -70,49 +70,16 @@ export function initMainContentInteraction() {
     });
 
     addBookmarkBtn.addEventListener("click", () => {
-        const bookmarks = getBookmarks();
-        const folders = getFolders();
-        const activeItem = getActiveItem();
-
-        if (!activeItem) {
-            const rootFolder = folders.find((f) => {
-                return f.parent_id === null && f.name === "Root";
-            });
-
-            if (!rootFolder) return;
-
-            renderBookmarkForm(null, rootFolder);
-            return;
-        }
-
-        const { type, id } = activeItem;
-
-        // If a Folder is selected
-        if (type === "f") {
-            const activeFolder = folders.find((f) => {
-                return f.id === id;
-            });
-
-            if (!activeFolder) return;
-            renderBookmarkForm(null, activeFolder);
-        }
-        // If a Bookmark is selected
-        else if (type === "b") {
-            const activeBookmark = bookmarks.find((b) => {
-                return b.id === id;
-            });
-            if (!activeBookmark) return;
-            const parentFolder = folders.find((f) => {
-                return f.id === activeBookmark.folder_id;
-            });
-            if (!parentFolder) return;
-            renderBookmarkForm(null, parentFolder);
-        }
+        const activeItemParent = getActiveItemFolder();
+        renderBookmarkForm(null, activeItemParent);
     });
 
     confirmDeleteBtn.addEventListener("click", () => {
         const bookmarkId = parseInt(confirmDeleteBtn.dataset.bookmarkId, 10);
-        const parentFolderId = parseInt(confirmDeleteBtn.dataset.parentFolderId, 10);
+        const parentFolderId = parseInt(
+            confirmDeleteBtn.dataset.parentFolderId,
+            10,
+        );
 
         // Close the modal popup
         deleteModal.hide();
@@ -143,9 +110,9 @@ export function initMainContentInteraction() {
                     setElementActive(newTreeItem, "f", parentFolderId);
                 } else {
                     if (data.errors) {
-                        console.log(data.errors);
+                        console.error(data.errors);
                     } else if (data.error) {
-                        console.log(data.error);
+                        console.error(data.error);
                     }
                 }
             });
