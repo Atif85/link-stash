@@ -7,6 +7,7 @@ urlpatterns = [
 
     # Api
     path("api/stash/", views.get_stash_data, name="stash_data"),
+    
     path("api/bookmarks/create/", views.create_bookmark, name="create_bookmark"),
     path(
         "api/bookmarks/edit/<int:bookmark_id>/",
@@ -18,7 +19,11 @@ urlpatterns = [
         views.delete_bookmark,
         name="delete_bookmark",
     ),
+
     path("api/folders/create/", views.create_folder, name="create_folder"),
+    path(
+        "api/folders/delete/<int:folder_id>/", views.delete_folder, name="delete_folder"
+    ),
 
     # Auth
     path("login", views.login_view, name="login"),

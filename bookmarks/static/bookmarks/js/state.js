@@ -99,7 +99,11 @@ export function removeBookmark(bookmarkId) {
     const index = appState.bookmarks.findIndex((b) => b.id === bookmarkId);
 
     if (index !== -1) {
-        removeItemFromFolder(appState.bookmarks[index].folder_id, bookmarkId, "b");
+        removeItemFromFolder(
+            appState.bookmarks[index].folder_id,
+            bookmarkId,
+            "b",
+        );
         appState.bookmarks.splice(index, 1);
     }
 }
@@ -128,7 +132,7 @@ export function removeFolder(folderId) {
     const index = appState.folders.findIndex((f) => f.id === folderId);
 
     if (index !== -1) {
-        removeItemFromFolder(appState.bookmarks[index].folder_id, bookmarkId);
+        removeItemFromFolder(appState.folders[index].parent_id, folderId, "f");
         appState.folders.splice(index, 1);
     }
 }

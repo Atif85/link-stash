@@ -59,10 +59,20 @@ export function updateMainContent(searchResults = null) {
         // Create folder header
         const headerDiv = document.createElement("div");
         headerDiv.className = "d-flex align-items-center mb-2";
+        headerDiv.dataset.id = activeFolder.id;
+        headerDiv.dataset.type = "f";
 
         headerDiv.innerHTML = `
             <i class="bi bi-folder-fill text-primary fs-3 me-2"></i>
-            <h2 class="fs-4 fw-bold m-0">${activeFolder.name}</h2>
+            <h2 class="fs-4 fw-bold m-0 flex-grow-1">${activeFolder.name}</h2>
+            <div class="mx-1">
+                <button class="rename-folder-btn btn btn-outline-secondary" title="Edit">
+                    <i class="bi bi-pencil"></i>
+                </button>
+                <button class="delete-folder-btn btn btn-outline-secondary ms-1" title="Delete">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
         `;
 
         container.append(headerDiv);
@@ -90,6 +100,7 @@ export function updateMainContent(searchResults = null) {
 
         // Set id in dataset
         rootDiv.dataset.id = activeBookmark.id;
+        rootDiv.dataset.type = "b";
 
         rootDiv.innerHTML = `
             <div class="mb-4">
@@ -143,7 +154,7 @@ export function updateMainContent(searchResults = null) {
                 <button class="edit-btn btn btn-primary d-flex align-items-center">
                     <i class="bi bi-pencil-square me-2"></i> Edit Bookmark
                 </button>
-                <button class="delete-btn btn btn-outline-danger d-flex align-items-center">
+                <button class="delete-bookmark-btn btn btn-outline-danger d-flex align-items-center">
                     <i class="bi bi-trash me-2"></i> Delete
                 </button>
             </div>
@@ -195,7 +206,7 @@ export function updateMainContent(searchResults = null) {
 
             // Set id and type in dataset
             bookmarkLi.dataset.id = bookmark.id;
-            //bookmarkLi.dataset.type = "b";
+            bookmarkLi.dataset.type = "b";
 
             const anchor = document.createElement("a");
             anchor.href = bookmark.url;
@@ -223,7 +234,8 @@ export function updateMainContent(searchResults = null) {
                 <button class="edit-btn btn btn-outline-secondary border-0" title="Edit">
                     <i class="bi bi-pencil"></i>
                 </button>
-                <button class="delete-btn btn btn-outline-secondary border-0" title="Delete">
+                <button class="de
+                lete-bookmark-btn btn btn-outline-secondary border-0" title="Delete">
                     <i class="bi bi-trash"></i>
                 </button>
             `;

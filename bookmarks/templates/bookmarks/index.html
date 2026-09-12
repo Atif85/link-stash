@@ -118,7 +118,26 @@
             </div>
 
             <div id="main-content-container" class="main-content-container">
+                <div class="d-flex align-items-center mb-2">
+                    <i class="bi bi-folder-fill text-primary fs-3 me-2"></i>
+                    <h2 class="fs-4 fw-bold m-0 flex-grow-1">Folder name</h2>
 
+                    <div class="mx-1">
+                        <button class="edit-btn btn btn-outline-secondary" title="Edit">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="delete-btn btn btn-outline-secondary ms-1" title="Delete">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="list-group list-group-flush border-top border-bottom">
+                    <li class="list-group-item d-flex align-items-center p-0">
+                        <div class="text-muted p-4 text-center flex-grow-1">
+                            No bookmarks
+                        </div>
+                    </li>
+                </div>
             </div>
             
         </div>
@@ -142,6 +161,31 @@
                     <div class="modal-footer border-0 pt-0">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                         <button type="button" id="confirm-delete-btn" class="btn btn-danger">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rename Folder Modal -->
+        <div 
+            class="modal fade" 
+            id="rename-folder-modal" 
+            data-bs-backdrop="static" data-bs-keyboard="false" 
+            tabindex="-1" aria-labelledby="rename-folder-modal" aria-hidden="true" 
+        >
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header border-0 pb-0">
+                        <h1 class="modal-title fs-5 fw-bold" id="del-modal-label">Rename Folder?</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body text-muted py-3">
+                        <input type="text" id="rename-folder-input" class="form-control form-control py-0 bg-body text-body" 
+                        required>
+                    </div>
+                    <div class="modal-footer border-0 pt-0">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" id="confirm-rename-btn" class="btn btn-success">Save</button>
                     </div>
                 </div>
             </div>

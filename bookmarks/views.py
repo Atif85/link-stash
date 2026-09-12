@@ -249,6 +249,44 @@ def create_folder(request):
         return JsonResponse({"success": False, "error": str(e)}, status=500)
 
 
+@login_required
+def delete_folder(request, folder_id):
+    if request.method != "DELETE":
+        return HttpResponseNotAllowed(["DELETE"])
+
+    try:
+        user = request.user
+
+        folder = Folder.objects.filter(
+            id=folder_id,
+            user=user,
+        ).first()
+
+        if not folder:
+            return JsonResponse(
+                {"success": False, "errors": {"folder": "Folder not found."}},
+                status=404,
+            )
+
+        parent_folder = folder.parent
+        folder_identifier = f"f_{folder.id}"
+
+        folder.delete()
+
+        # Remove bookmark from its folder's children_order
+        if parent_folder.children_order:
+            parent_folder.children_order = [
+                child_id
+                for child_id in parent_folder.children_order
+                if child_id != folder_identifier
+            ]
+            parent_folder.save()
+
+        return JsonResponse({"success": True}, status=200)
+
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
+
 # Stash Api
 @login_required
 def get_stash_data(request):

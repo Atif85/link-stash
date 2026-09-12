@@ -90,8 +90,7 @@ export function initSidebarInteraction() {
 
         function onSubmit() {
             const name = input.value.trim();
-            console.log(`New folder ${name} under ${activeItemFolder.name}`);
-
+            
             // Get csrf token from the html element
             const csrfToken = document.querySelector(
                 "#csrf-container [name=csrfmiddlewaretoken]",
