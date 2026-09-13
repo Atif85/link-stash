@@ -1,6 +1,10 @@
+import { request } from "../api.js";
 import { renderBookmarkForm } from "../editor/editorRenderer.js";
-import { getTreeElement, setElementActive } from "../sidebar/treeController.js";
-import { rebuildTree } from "../sidebar/treeRenderer.js";
+import {
+    getTreeElement,
+    refreshTreeAndSelect,
+    setElementActive,
+} from "../sidebar/treeController.js";
 import {
     getBookmarks,
     getFolders,
@@ -143,11 +147,6 @@ export function initMainContentInteraction() {
             10,
         );
 
-        // Get csrf token from the html element
-        const csrfToken = document.querySelector(
-            "#csrf-container [name=csrfmiddlewaretoken]",
-        ).value;
-
         deleteModal.hide();
         const endpoint =
             itemType === "f"
@@ -156,40 +155,24 @@ export function initMainContentInteraction() {
 
         const method = "DELETE";
 
-        // Make the DELETE fetch
-        fetch(endpoint, {
-            method: method,
-            headers: { "X-CSRFToken": csrfToken },
-        })
-            .then((response) => {
-                return response.json();
-            })
-            .then((data) => {
-                if (data.success) {
-                    // Update local state
-                    if (itemType === "f") {
-                        removeFolder(id);
-                    } else {
-                        removeBookmark(id);
-                    }
-
-                    // Rebuild tree
-                    rebuildTree(); // TODO: only update whats needed
-
-                    // Set the parent folder active
-                    const newTreeItem = getTreeElement(
-                        parentFolderId,
-                        itemType,
-                    );
-                    setElementActive(newTreeItem, itemType, parentFolderId);
+        request(endpoint, method, null).then((data) => {
+            if (data.success) {
+                // Update local state
+                if (itemType === "f") {
+                    removeFolder(id);
                 } else {
-                    if (data.errors) {
-                        console.error(data.errors);
-                    } else if (data.error) {
-                        console.error(data.error);
-                    }
+                    removeBookmark(id);
                 }
-            });
+
+                refreshTreeAndSelect(parentFolderId, "f");
+            } else {
+                if (data.errors) {
+                    console.error(data.errors);
+                } else if (data.error) {
+                    console.error(data.error);
+                }
+            }
+        });
     });
 
     confirmRenameBtn.addEventListener("click", () => {
@@ -204,10 +187,6 @@ export function initMainContentInteraction() {
             10,
         );
 
-        const csrfToken = document.querySelector(
-            "#csrf-container [name=csrfmiddlewaretoken]",
-        ).value;
-
         renameModal.hide();
 
         const name = renameInput.value.trim();
@@ -217,35 +196,18 @@ export function initMainContentInteraction() {
             parent_id: parentFolderId,
         };
 
-        fetch(`/api/folders/edit/${id}/`, {
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": csrfToken,
-            },
-            body: JSON.stringify(payload),
-        })
-            .then((response) => {
-                return response.json();
-            })
-            .then((data) => {
-                if (data.success) {
-                    // Update local state
-                    addOrUpdateFolder(data.folder);
-
-                    // Rebuild tree
-                    rebuildTree(); // TODO: only update whats needed
-
-                    // Set the bookmark active
-                    const newTreeItem = getTreeElement(data.folder.id, "f");
-                    setElementActive(newTreeItem, "f", data.folder.id);
-                } else {
-                    if (data.errors) {
-                        console.error(data.errors);
-                    } else if (data.error) {
-                        console.error(data.error);
-                    }
+        request(`/api/folders/edit/${id}/`, "PATCH", payload).then((data) => {
+            if (data.success) {
+                // Update local state
+                addOrUpdateFolder(data.folder);
+                refreshTreeAndSelect(data.folder.id, "f");
+            } else {
+                if (data.errors) {
+                    console.error(data.errors);
+                } else if (data.error) {
+                    console.error(data.error);
                 }
-            });
+            }
+        });
     });
 }

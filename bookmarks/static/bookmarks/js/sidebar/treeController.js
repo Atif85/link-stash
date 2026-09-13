@@ -1,5 +1,6 @@
 import { updateMainContent } from "../mainContent/mainContentRenderer.js";
 import { setActiveItem } from "../state.js";
+import { rebuildTree } from "./treeRenderer.js";
 
 export function initTreeInteraction() {
     const sidebarContent = document.getElementById("sidebar-content");
@@ -184,6 +185,13 @@ export function initTreeInteraction() {
             }
         }
     }
+}
+
+export function refreshTreeAndSelect(id, type) {
+    rebuildTree();
+    const treeItem = getTreeElement(id, type);
+
+    setElementActive(treeItem, type, id);
 }
 
 export function getTreeElement(id, type) {
