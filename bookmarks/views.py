@@ -48,7 +48,6 @@ def create_bookmark(request):
         new_bookmark = Bookmark.objects.create(
             title=cleaned["title"], url=cleaned["url"], folder=parent_folder
         )
-        new_bookmark.save()
 
         # Update child_order of parent folder
         if parent_folder.children_order is None:
@@ -283,45 +282,47 @@ def edit_folder(request, folder_id):
                 status=404,
             )
 
-        # Check if parent folder was changed.
-        if parent_id != new_parent_id:
-            old_parent_folder = Folder.objects.filter(id=parent_id, user=user).first()
-
-            new_parent_folder = Folder.objects.filter(
-                id=new_parent_id, user=user
-            ).first()
-
-            if not old_parent_folder or not new_parent_folder:
-                return JsonResponse(
-                    {"success": False, "errors": {"folder": "Parent folder not found."}},
-                    status=404,
-                )
-
-            folder_identifier = f"f_{folder_id}"
-
-            # Remove folder from old parent folder's children_order
-            if old_parent_folder.children_order:
-                # Rebuild whole list to remove any duplicates too
-                old_parent_folder.children_order = [
-                    child_id
-                    for child_id in old_parent_folder.children_order
-                    if child_id != folder_identifier
-                ]
-                old_parent_folder.save()
-
-            # Add bookmark to new parent folder's children_order
-            if new_parent_folder.children_order is None:
-                new_parent_folder.children_order = []
-            new_parent_folder.children_order.append(folder_identifier)
-            new_parent_folder.save()
-
-            # Update parent folder 
-            folder.parent = new_parent_folder
-
-        folder.name = cleaned["name"]
-
         if "children_order" in cleaned:
             folder.children_order = cleaned["children_order"]
+
+        # Prevent editing name or parent of root folder
+        if folder.parent is not None and folder.name != "Root":
+            # Check if parent folder was changed.
+            if parent_id != new_parent_id and new_parent_id != folder_id:
+                old_parent_folder = Folder.objects.filter(id=parent_id, user=user).first()
+
+                new_parent_folder = Folder.objects.filter(
+                    id=new_parent_id, user=user
+                ).first()
+
+                if not old_parent_folder or not new_parent_folder:
+                    return JsonResponse(
+                        {"success": False, "errors": {"folder": "Parent folder not found."}},
+                        status=404,
+                    )
+
+                folder_identifier = f"f_{folder_id}"
+
+                # Remove folder from old parent folder's children_order
+                if old_parent_folder.children_order:
+                    # Rebuild whole list to remove any duplicates too
+                    old_parent_folder.children_order = [
+                        child_id
+                        for child_id in old_parent_folder.children_order
+                        if child_id != folder_identifier
+                    ]
+                    old_parent_folder.save()
+
+                # Add bookmark to new parent folder's children_order
+                if new_parent_folder.children_order is None:
+                    new_parent_folder.children_order = []
+                new_parent_folder.children_order.append(folder_identifier)
+                new_parent_folder.save()
+
+                # Update parent folder 
+                folder.parent = new_parent_folder
+
+            folder.name = cleaned["name"]
 
         folder.save()
 
@@ -355,6 +356,10 @@ def delete_folder(request, folder_id):
                 {"success": False, "errors": {"folder": "Folder not found."}},
                 status=404,
             )
+
+        # Prevent deletion of root folder
+        if folder.parent is None and folder.name == "Root":
+            return JsonResponse({"success": False, "errors": {"folder": "Cannot delete the root folder."}}, status=400)
 
         parent_folder = folder.parent
         folder_identifier = f"f_{folder.id}"

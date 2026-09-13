@@ -234,8 +234,7 @@ export function updateMainContent(searchResults = null) {
                 <button class="edit-btn btn btn-outline-secondary border-0" title="Edit">
                     <i class="bi bi-pencil"></i>
                 </button>
-                <button class="de
-                lete-bookmark-btn btn btn-outline-secondary border-0" title="Delete">
+                <button class="delete-bookmark-btn btn btn-outline-secondary border-0" title="Delete">
                     <i class="bi bi-trash"></i>
                 </button>
             `;

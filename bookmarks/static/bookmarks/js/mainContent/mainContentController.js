@@ -241,7 +241,7 @@ export function initMainContentInteraction() {
                     setElementActive(newTreeItem, "f", data.folder.id);
                 } else {
                     if (data.errors) {
-                        console.error(errors);
+                        console.error(data.errors);
                     } else if (data.error) {
                         console.error(data.error);
                     }
