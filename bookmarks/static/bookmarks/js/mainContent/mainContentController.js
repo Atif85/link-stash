@@ -7,6 +7,7 @@ import {
     removeBookmark,
     getActiveItemFolder,
     removeFolder,
+    addOrUpdateFolder,
 } from "../state.js";
 
 export function initMainContentInteraction() {
@@ -24,6 +25,14 @@ export function initMainContentInteraction() {
     const renameModal = new bootstrap.Modal(renameModalEl);
     const confirmRenameBtn = document.getElementById("confirm-rename-btn");
 
+    const renameInput = document.getElementById("rename-folder-input");
+    // When modal is show autofocus and select the input text
+    renameModalEl.addEventListener("shown.bs.modal", () => {
+        renameInput.focus();
+        renameInput.select();
+    });
+
+    // Handle button clicks in the main content contaienr
     container.addEventListener("click", (event) => {
         const target = event.target;
 
@@ -66,8 +75,11 @@ export function initMainContentInteraction() {
                 // Show the modal
                 deleteModal.show();
             } else if (targetButton.classList.contains("rename-folder-btn")) {
-                const input = document.getElementById("rename-folder-input");
-                input.value = targetFolder.name;
+                renameInput.value = targetFolder.name;
+
+                confirmRenameBtn.dataset.id = id;
+                confirmRenameBtn.dataset.parentFolderId = parentFolder.id;
+
                 renameModal.show();
             }
             return;
@@ -173,6 +185,63 @@ export function initMainContentInteraction() {
                 } else {
                     if (data.errors) {
                         console.error(data.errors);
+                    } else if (data.error) {
+                        console.error(data.error);
+                    }
+                }
+            });
+    });
+
+    confirmRenameBtn.addEventListener("click", () => {
+        if (!renameInput.checkValidity()) {
+            renameInput.reportValidity();
+            return;
+        }
+
+        const id = parseInt(confirmRenameBtn.dataset.id, 10);
+        const parentFolderId = parseInt(
+            confirmRenameBtn.dataset.parentFolderId,
+            10,
+        );
+
+        const csrfToken = document.querySelector(
+            "#csrf-container [name=csrfmiddlewaretoken]",
+        ).value;
+
+        renameModal.hide();
+
+        const name = renameInput.value.trim();
+
+        let payload = {
+            name: name,
+            parent_id: parentFolderId,
+        };
+
+        fetch(`/api/folders/edit/${id}/`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrfToken,
+            },
+            body: JSON.stringify(payload),
+        })
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+                if (data.success) {
+                    // Update local state
+                    addOrUpdateFolder(data.folder);
+
+                    // Rebuild tree
+                    rebuildTree(); // TODO: only update whats needed
+
+                    // Set the bookmark active
+                    const newTreeItem = getTreeElement(data.folder.id, "f");
+                    setElementActive(newTreeItem, "f", data.folder.id);
+                } else {
+                    if (data.errors) {
+                        console.error(errors);
                     } else if (data.error) {
                         console.error(data.error);
                     }

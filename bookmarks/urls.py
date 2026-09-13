@@ -21,6 +21,7 @@ urlpatterns = [
     ),
 
     path("api/folders/create/", views.create_folder, name="create_folder"),
+    path("api/folders/edit/<int:folder_id>/", views.edit_folder, name="edit_folder"),
     path(
         "api/folders/delete/<int:folder_id>/", views.delete_folder, name="delete_folder"
     ),

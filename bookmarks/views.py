@@ -208,7 +208,7 @@ def create_folder(request):
     try:
         user = request.user
 
-        cleaned, errors = _validate_folder_input(data)
+        cleaned, errors = _validate_folder_input(data, isEdit=False)
         if errors:
             return JsonResponse({"success": False, "errors": errors}, status=400)
 
@@ -243,6 +243,94 @@ def create_folder(request):
                 "folder": _serialize_folder(new_folder),
             },
             status=201,
+        )
+
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
+
+
+@login_required
+def edit_folder(request, folder_id):
+    if request.method != "PATCH":
+        return HttpResponseNotAllowed(["PATCH"])
+
+    # Parse Json
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({"success": False, "error": "Invalid Json"}, status=400)
+
+    try:
+        user = request.user
+
+        cleaned, errors = _validate_folder_input(data, isEdit=True)
+        if errors:
+            return JsonResponse({"success": False, "errors": errors}, status=400)
+
+        parent_id = cleaned["parent_id"]
+        new_parent_id = cleaned["new_parent_id"]
+
+        # Find the folder
+        folder = Folder.objects.filter(
+            id=folder_id,
+            parent__id=parent_id,
+            user=user,
+        ).first()
+
+        if not folder:
+            return JsonResponse(
+                {"success": False, "errors": {"folder": "Folder not found."}},
+                status=404,
+            )
+
+        # Check if parent folder was changed.
+        if parent_id != new_parent_id:
+            old_parent_folder = Folder.objects.filter(id=parent_id, user=user).first()
+
+            new_parent_folder = Folder.objects.filter(
+                id=new_parent_id, user=user
+            ).first()
+
+            if not old_parent_folder or not new_parent_folder:
+                return JsonResponse(
+                    {"success": False, "errors": {"folder": "Parent folder not found."}},
+                    status=404,
+                )
+
+            folder_identifier = f"f_{folder_id}"
+
+            # Remove folder from old parent folder's children_order
+            if old_parent_folder.children_order:
+                # Rebuild whole list to remove any duplicates too
+                old_parent_folder.children_order = [
+                    child_id
+                    for child_id in old_parent_folder.children_order
+                    if child_id != folder_identifier
+                ]
+                old_parent_folder.save()
+
+            # Add bookmark to new parent folder's children_order
+            if new_parent_folder.children_order is None:
+                new_parent_folder.children_order = []
+            new_parent_folder.children_order.append(folder_identifier)
+            new_parent_folder.save()
+
+            # Update parent folder 
+            folder.parent = new_parent_folder
+
+        folder.name = cleaned["name"]
+
+        if "children_order" in cleaned:
+            folder.children_order = cleaned["children_order"]
+
+        folder.save()
+
+        return JsonResponse(
+            {
+                "success": True,
+                "folder": _serialize_folder(folder),
+            },
+            status=200,
         )
 
     except Exception as e:
@@ -286,6 +374,7 @@ def delete_folder(request, folder_id):
 
     except Exception as e:
         return JsonResponse({"success": False, "error": str(e)}, status=500)
+
 
 # Stash Api
 @login_required
@@ -384,7 +473,7 @@ def _validate_bookmark_input(data, isEdit):
         "folder_id": folder_id,
     }
 
-    if isEdit == True:
+    if isEdit:
         new_folder_id = data.get("new_folder_id")
         if not new_folder_id:
             new_folder_id = folder_id
@@ -404,7 +493,7 @@ def _serialize_bookmark(bookmark):
     }
 
 
-def _validate_folder_input(data):
+def _validate_folder_input(data, isEdit):
     name_input = data.get("name", "").strip()
     parent_id = data.get("parent_id")
 
@@ -418,6 +507,16 @@ def _validate_folder_input(data):
         "name": name_input,
         "parent_id": parent_id,
     }
+
+    if isEdit:
+        new_parent_id = data.get("new_parent_id")
+        if not new_parent_id:
+            new_parent_id = parent_id
+        cleaned_data["new_parent_id"] = new_parent_id
+
+        children_order = data.get("children_order")
+        if children_order is not None:
+            cleaned_data["children_order"] = children_order
 
     return cleaned_data, None
 
