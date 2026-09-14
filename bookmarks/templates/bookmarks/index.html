@@ -9,12 +9,15 @@
 
     <div class="d-flex flex-row">
         <!-- Sidebar -->
-        <div id="sidebar" class="sidebar d-flex flex-column bg-body-tertiary p-4">
+        <div id="sidebar" class="sidebar offcanvas-md offcanvas-start d-flex flex-column bg-body-tertiary p-4" tabindex="-1">
             
             <!-- Title -->
-            <a href="{% url 'index' %}" class="d-flex align-items-center text-decoration-none text-body">
-                <span class="fs-3 fw-bold">LinkStash</span>
-            </a>
+            <div class="d-flex align-items-center justify-content-between">
+                <a href="{% url 'index' %}" class="d-flex align-items-center text-decoration-none text-body">
+                    <span class="fs-3 fw-bold">LinkStash</span>
+                </a>
+                <button type="button" class="btn-close d-md-none" data-bs-dismiss="offcanvas" data-bs-target="#sidebar" aria-label="Close sidebar"></button>
+            </div>
             <hr class="my-3">
 
             <!-- Sidebar Main Content -->
@@ -88,7 +91,7 @@
             
         </div>
 
-        <div id="sidebar-resizer" class="resizer rounded-pill"></div>
+        <div id="sidebar-resizer" class="resizer rounded-pill d-none d-md-block"></div>
 
         <!-- Main Content -->
         <div id="main-content" class="main-content bg-body flex-grow-1 p-3">
@@ -99,8 +102,16 @@
             <div class="d-flex justify-content-between align-items-center mt-1 mb-3">
 
                 <!-- Search Bar -->
-                <div>
-                    <div class="input-group input-group-sm" style="width: 350px;">
+                <div class="d-flex align-items-center flex-grow-1 me-2">
+                    <button
+                        type="button"
+                        class="btn btn-outline-secondary btn-sm d-md-none me-2"
+                        data-bs-toggle="offcanvas" data-bs-target="#sidebar"
+                        aria-controls="sidebar" aria-label="Open sidebar"
+                    >
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <div class="input-group input-group-sm search-bar">
                         <span class="input-group-text bg-body border-secondary-subtle" id="search">
                             <i class="bi bi-search text-muted"></i>
                         </span>
@@ -112,7 +123,7 @@
                     </div>
                 </div>
 
-                <button id="add-bookmark-btn" class="btn btn-primary btn-sm d-flex align-items-center">
+                <button id="add-bookmark-btn" class="btn btn-primary btn-sm d-flex align-items-center text-nowrap">
                     <i class="bi bi-plus-lg me-1"></i>Add Bookmark
                 </button>
             </div>

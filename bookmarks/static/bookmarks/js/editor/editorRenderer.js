@@ -25,22 +25,22 @@ export function renderBookmarkForm(bookmark = null, parentFolder) {
         <div class="mb-4">
             <!-- Title -->
             <div class="row align-items-center mb-3">
-                <div class="col-2">
+                <div class="col-12 col-sm-2 col-md-2 mb-1 mb-sm-0">
                     <label for="title" class="text-muted fw-bold text-uppercase">Title</label>
                 </div>
-                <div class="col-10">
+                <div class="col-12 col-sm-9 col-md-10">
                     <input type="text" id="title" class="form-control" placeholder="Enter bookmark title..."
-                           value="${isEdit ? bookmark.title : ""}">
+                        value="${isEdit ? bookmark.title : ""}">
                     <div id="title-error" class="invalid-feedback">Please enter a valid title.</div>
                 </div>
             </div>
 
             <!-- URL -->
             <div class="row align-items-center mb-3">
-                <div class="col-2">
+                <div class="col-12 col-sm-2 col-md-2 mb-1 mb-sm-0">
                     <label for="url" class="text-muted fw-bold text-uppercase">URL</label>
                 </div>  
-                <div class="col-10">
+                <div class="col-12 col-sm-9 col-md-10">
                     <input type="text" id="url" class="form-control" placeholder="https://example.com" required autofocus
                            value="${isEdit ? bookmark.url : ""}">
                     <div id="url-error" class="invalid-feedback">Please enter a valid url.</div>
@@ -49,10 +49,10 @@ export function renderBookmarkForm(bookmark = null, parentFolder) {
 
             <!-- Location -->
             <div class="row align-items-center mb-3">
-                <div class="col-2">
+                <div class="col-12 col-sm-2 col-md-2 mb-1 mb-sm-0">
                     <span class="text-muted fw-bold text-uppercase">Location</span>
                 </div>
-                <div class="col-10">
+                <div class="col-12 col-sm-9 col-md-10">
                     <span id="bookmark-location" class="badge bg-secondary px-2.5 py-1.5 fs-6">
                         ${bookmarkLocationPath}
                     </span>

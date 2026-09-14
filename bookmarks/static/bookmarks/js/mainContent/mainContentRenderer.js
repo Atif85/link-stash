@@ -115,10 +115,10 @@ export function updateMainContent(searchResults = null) {
 
             <div class="mb-4">
                 <div class="row align-items-center mb-3">
-                    <div class="col-2">
+                    <div class="col-12 col-sm-3 col-md-2 mb-1 mb-sm-0">
                         <span class="text-muted fw-bold text-uppercase">URL</span>
                     </div>
-                    <div class="col-10">
+                    <div class="col-12 col-sm-9 col-md-10">
                         <a href="${activeBookmark.url}" target="_blank" class="text-break text-decoration-none fs-5">
                             ${activeBookmark.url} <i class="bi bi-box-arrow-up-right small ms-1"></i>
                         </a>
@@ -126,10 +126,10 @@ export function updateMainContent(searchResults = null) {
                 </div>
 
                 <div class="row align-items-center mb-3">
-                    <div class="col-2">
+                    <div class="col-12 col-sm-3 col-md-2 mb-1 mb-sm-0">
                         <span class="text-muted fw-bold text-uppercase">Location</span>
                     </div>
-                    <div class="col-10">
+                    <div class="col-12 col-sm-9 col-md-10">
                         <span class="badge bg-secondary px-2.5 py-1.5 fs-6">
                             ${locationPath}
                         </span>
@@ -137,10 +137,10 @@ export function updateMainContent(searchResults = null) {
                 </div>
 
                 <div class="row align-items-center mb-3">
-                    <div class="col-2">
+                    <div class="col-12 col-sm-3 col-md-2 mb-1 mb-sm-0">
                         <span class="text-muted fw-bold text-uppercase">Created At</span>
                     </div>
-                    <div class="col-10">
+                    <div class="col-12 col-sm-9 col-md-10">
                         <span>
                             ${formatDate(activeBookmark.created_at)}
                         </span>
@@ -213,19 +213,20 @@ export function updateMainContent(searchResults = null) {
             anchor.target = "_blank";
             anchor.className =
                 "d-flex align-items-center flex-grow-1 text-decoration-none text-body py-3 px-3 list-group-item-action";
+            anchor.style.minWidth = "0";
 
             anchor.innerHTML = `
                 <i class="bi bi-link-45deg fs-5 text-muted me-3"></i>
-                <div class="flex-grow-1">
+                <div class="flex-grow-1" style="min-width: 0;">
                     <div class="fw-semibold">${bookmark.title}</div>
-                    <div class="text-muted small text-truncate" style="max-width: 400px;">${bookmark.url}.</div>
+                    <div class="text-muted small text-truncate">${bookmark.url}.</div>
                 </div>
             `;
 
             bookmarkLi.append(anchor);
 
             const btnContainer = document.createElement("div");
-            btnContainer.className = "btn-group d-flex p-3";
+            btnContainer.className = "btn-group d-flex p-3 flex-shrink-0";
 
             btnContainer.innerHTML = `
                 <button class="view-details-btn btn btn-outline-secondary border-0" title="View Details">
