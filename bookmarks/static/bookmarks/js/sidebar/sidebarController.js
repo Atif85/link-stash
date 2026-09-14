@@ -84,11 +84,19 @@ export function initSidebarInteraction() {
         folderList.append(inputListItem);
         input.focus();
 
+        let isHandled = false;
+
         function onCancel() {
+            if (isHandled) return;
+            isHandled = true;
             inputListItem.remove();
         }
 
         function onSubmit() {
+            if (isHandled) return;
+            isHandled = true;
+            input.disabled = true; 
+            
             const name = input.value.trim();
 
             const payload = {
