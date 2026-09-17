@@ -46,7 +46,10 @@ def create_bookmark(request):
 
         # Create new bookmark
         new_bookmark = Bookmark.objects.create(
-            title=cleaned["title"], url=cleaned["url"], folder=parent_folder
+            title=cleaned["title"],
+            url=cleaned["url"],
+            folder=parent_folder,
+            favicon_url=cleaned["favicon_url"],
         )
 
         # Update child_order of parent folder
@@ -289,7 +292,9 @@ def edit_folder(request, folder_id):
         if folder.parent is not None and folder.name != "Root":
             # Check if parent folder was changed.
             if parent_id != new_parent_id and new_parent_id != folder_id:
-                old_parent_folder = Folder.objects.filter(id=parent_id, user=user).first()
+                old_parent_folder = Folder.objects.filter(
+                    id=parent_id, user=user
+                ).first()
 
                 new_parent_folder = Folder.objects.filter(
                     id=new_parent_id, user=user
@@ -297,7 +302,10 @@ def edit_folder(request, folder_id):
 
                 if not old_parent_folder or not new_parent_folder:
                     return JsonResponse(
-                        {"success": False, "errors": {"folder": "Parent folder not found."}},
+                        {
+                            "success": False,
+                            "errors": {"folder": "Parent folder not found."},
+                        },
                         status=404,
                     )
 
@@ -319,7 +327,7 @@ def edit_folder(request, folder_id):
                 new_parent_folder.children_order.append(folder_identifier)
                 new_parent_folder.save()
 
-                # Update parent folder 
+                # Update parent folder
                 folder.parent = new_parent_folder
 
             folder.name = cleaned["name"]
@@ -359,7 +367,13 @@ def delete_folder(request, folder_id):
 
         # Prevent deletion of root folder
         if folder.parent is None and folder.name == "Root":
-            return JsonResponse({"success": False, "errors": {"folder": "Cannot delete the root folder."}}, status=400)
+            return JsonResponse(
+                {
+                    "success": False,
+                    "errors": {"folder": "Cannot delete the root folder."},
+                },
+                status=400,
+            )
 
         parent_folder = folder.parent
         folder_identifier = f"f_{folder.id}"
@@ -467,15 +481,18 @@ def _validate_bookmark_input(data, isEdit):
     if not title_input:
         title_input = url_input
 
-    # Parse url
+    # Parse url and extract favicon url
+    if not url_input.startswith(("http://", "https://")):
+        url_input = f"https://{url_input}"
+
     parsed_url = urllib.parse.urlparse(url_input)
-    if not parsed_url.scheme:
-        url_input = "https://" + url_input
+    favicon_url = get_verified_favicon(parsed_url.netloc)
 
     cleaned_data = {
         "title": title_input,
         "url": url_input,
         "folder_id": folder_id,
+        "favicon_url": favicon_url,
     }
 
     if isEdit:
@@ -533,3 +550,28 @@ def _serialize_folder(folder):
         "parent_id": folder.parent_id,
         "children_order": folder.children_order,
     }
+
+
+def get_verified_favicon(domain):
+    if not domain:
+        return None
+
+    candidate_url = f"https://icons.duckduckgo.com/ip3/{domain}.ico"
+
+    req = urllib.request.Request(
+        candidate_url,
+        headers={"User-Agent": "Mozilla/5.0"}
+    )
+
+    try:
+        with urllib.request.urlopen(req, timeout=2.0) as response:
+            if response.status == 200:
+                return candidate_url
+    except urllib.error.HTTPError:
+        # DuckDuckGo returned 404 or other HTTP error
+        return None
+    except (urllib.error.URLError, TimeoutError):
+        # Network unreachable or connection timed out
+        return None
+
+    return None

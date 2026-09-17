@@ -80,7 +80,7 @@ function renderFolderChildren(
             const bookmark = bookmarksByID[id];
             if (!bookmark) continue;
 
-            const bookmarkElement = createTreeBookmark(bookmark.title);
+            const bookmarkElement = createTreeBookmark(bookmark);
 
             // Set type and id in dataset
             bookmarkElement.dataset.id = bookmark.id;
@@ -91,14 +91,18 @@ function renderFolderChildren(
     }
 }
 
-// Helpers for creating the html elements
-function createTreeBookmark(title) {
+function createTreeBookmark(bookmark) {
     const listItem = document.createElement("li");
+
+    const icon = bookmark.favicon_url
+        ? `<img src="${bookmark.favicon_url}" width="16" height="16" alt="" loading="lazy">`
+        : `<i class="bi bi-link-45deg tree-bookmark-icon"></i>`;
+
     listItem.innerHTML = `
         <div class="tree-item">
-            <i class="bi bi-link-45deg tree-bookmark-icon"></i>
-            <span>${title}</span>
-        <div>
+            ${icon}
+            <span>${escapeHtml(bookmark.title)}</span>
+        </div>
     `;
 
     return listItem;
@@ -131,4 +135,10 @@ function createTreeList() {
     const list = document.createElement("ul");
     list.className = "tree-list";
     return list;
+}
+
+function escapeHtml(str) {
+    const div = document.createElement("div");
+    div.textContent = str;
+    return div.innerHTML;
 }

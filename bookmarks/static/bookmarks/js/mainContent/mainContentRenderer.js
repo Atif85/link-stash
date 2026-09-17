@@ -215,9 +215,13 @@ export function updateMainContent(searchResults = null) {
                 "d-flex align-items-center flex-grow-1 text-decoration-none text-body py-3 px-3 list-group-item-action";
             anchor.style.minWidth = "0";
 
+            const icon = bookmark.favicon_url
+                ? `<img src="${bookmark.favicon_url}" width="24" height="24" alt="" loading="lazy">`
+                : `<i class="bi bi-link-45deg fs-4 tree-bookmark-icon"></i>`;
+
             anchor.innerHTML = `
-                <i class="bi bi-link-45deg fs-5 text-muted me-3"></i>
-                <div class="flex-grow-1" style="min-width: 0;">
+                ${icon}
+                <div class="flex-grow-1 ms-3" style="min-width: 0;">
                     <div class="fw-semibold">${bookmark.title}</div>
                     <div class="text-muted small text-truncate">${bookmark.url}.</div>
                 </div>
